@@ -1,0 +1,42 @@
+run:
+  tests: false
+  skip-dirs:
+    - vendor$
+  modules-download-mode: vendor
+
+linters-settings:
+  dupl:
+    threshold: 100
+  funlen:
+    lines: 80
+    statements: 60
+  gocritic:
+    disabled-checks:
+    - sloppyLen
+  gocyclo:
+    min-complexity: 10
+  goimports:
+    local-prefixes: github.com/FishtechCSOC/jira-publisher
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+  lll:
+    line-length: 120
+    tab-width: 2
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US
+
+linters:
+  enable-all: true
+  disable:
+    - lll
+    - goerr113
+    - exhaustivestruct
+    - wrapcheck
+    - interfacer # Deprecated
+    - scopelint # Deprecated
+    - maligned # Deprecated
+  fast: false
