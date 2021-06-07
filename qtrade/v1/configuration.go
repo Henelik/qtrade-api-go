@@ -3,7 +3,8 @@ package v1
 import "strings"
 
 type Configuration struct {
-	Auth Auth
+	Auth     Auth
+	Endpoint string
 }
 
 type Auth struct {
