@@ -2,22 +2,25 @@ package v1
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type QtradeClient struct {
-	Client *resty.Client
+	Client *http.Client
 	Config Configuration
 }
 
 func NewQtradeClient(config Configuration) *QtradeClient {
-	client := resty.New()
+	client := &http.Client{
+		Timeout: 10,
+	}
 
 	return &QtradeClient{
 		Client: client,
@@ -55,7 +58,41 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
 		client.Config.Auth.KeyID + ":" +
 		base64.StdEncoding.EncodeToString(hash[:])
 
-	fmt.Printf("reqDetails:\n%s\n", reqDetails)
-
 	return hmac, nil
+}
+
+func (client *QtradeClient) doRequest(ctx context.Context, method string, uri string, result interface{}) error {
+	req, err := http.NewRequestWithContext(ctx, method, client.Config.Endpoint+uri, nil)
+	if err != nil {
+		return err
+	}
+
+	auth, err := client.generateHMAC(req)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", auth)
+
+	resp, err := client.Client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(json.Unmarshal(b, &map[string]interface{}{}))
+
+	return json.Unmarshal(b, result)
+}
+
+func (client *QtradeClient) GetBalances(ctx context.Context) (*GetBalancesResult, error) {
+	result := new(GetBalancesResult)
+
+	err := client.doRequest(ctx, "GET", "/user/balances", result)
+
+	return result, err
 }
