@@ -48,8 +48,8 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
 
 		reqDetails.Write(bodyBytes)
 	}
-	reqDetails.WriteString("\n")
 
+	reqDetails.WriteString("\n")
 	reqDetails.WriteString(client.Config.Auth.Key)
 
 	hash := sha256.Sum256(reqDetails.Bytes())

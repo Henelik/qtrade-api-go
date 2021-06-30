@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"bou.ke/monkey"
+	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -82,14 +83,12 @@ func TestQtradeClient_generateHMAC(t *testing.T) {
 }
 
 func TestQtradeClient_GetBalances(t *testing.T) {
-	monkey.Patch((*http.Client).Do, func(c *http.Client, req *http.Request) (*http.Response, error) {
-		return &http.Response{
-			Status:        "OK",
-			StatusCode:    200,
-			Body:          testBody{data: []byte(balancesTestData)},
-			ContentLength: int64(len(balancesTestData)),
-		}, nil
-	})
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/user/balances",
+		httpmock.NewStringResponder(200, balancesTestData))
 
 	client := NewQtradeClient(
 		Configuration{
@@ -97,10 +96,10 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 				KeyID: "1",
 				Key:   "1111111111111111111111111111111111111111111111111111111111111111",
 			},
-			Endpoint: "http://localhost:420",
+			Endpoint: "http://localhost",
 		})
 
-	want := GetBalancesResult{
+	want := &GetBalancesResult{
 		Data: Balances{
 			Balances: []Balance{
 				{
@@ -119,6 +118,10 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 		},
 	}
 
-	got, _ := client.GetBalances(context.Background())
-	assert.Equal(t, want, got)
+	got, err := client.GetBalances(context.Background())
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/user/balances"])
 }
