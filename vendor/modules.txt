@@ -5,14 +5,15 @@ bou.ke/monkey
 github.com/davecgh/go-spew/spew
 # github.com/go-resty/resty/v2 v2.6.0
 ## explicit
-github.com/go-resty/resty/v2
+# github.com/jarcoal/httpmock v1.0.8
+## explicit
+github.com/jarcoal/httpmock
+github.com/jarcoal/httpmock/internal
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.7.0
 ## explicit
 github.com/stretchr/testify/assert
-# golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
-golang.org/x/net/publicsuffix
 # gopkg.in/resty.v1 v1.12.0
 ## explicit
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
