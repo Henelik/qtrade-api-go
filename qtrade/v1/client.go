@@ -89,10 +89,18 @@ func (client *QtradeClient) doRequest(ctx context.Context, method string, uri st
 	return json.Unmarshal(b, result)
 }
 
+func (client *QtradeClient) GetUserInfo(ctx context.Context) (*GetUserInfoResult, error) {
+	result := new(GetUserInfoResult)
+
+	err := client.doRequest(ctx, "GET", "/v1/user/me", result)
+
+	return result, err
+}
+
 func (client *QtradeClient) GetBalances(ctx context.Context) (*GetBalancesResult, error) {
 	result := new(GetBalancesResult)
 
-	err := client.doRequest(ctx, "GET", "/user/balances", result)
+	err := client.doRequest(ctx, "GET", "/v1/user/balances", result)
 
 	return result, err
 }

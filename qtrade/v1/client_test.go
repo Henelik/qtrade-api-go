@@ -30,7 +30,10 @@ func (t testBody) Close() error {
 	return nil
 }
 
-const balancesTestData = `{"data": {"balances": [{"balance": "100000000","currency": "BCH"},{"balance": "99992435.78253015","currency": "LTC"},{"balance": "99927153.76074182","currency": "BTC"}]}}`
+const (
+	userTestData     = `{"data": {"user": {"can_login": true,"can_trade": true,"can_withdraw": true,"email": "hugh@test.com","email_addresses": [{"address": "hugh@test.com","created_at": "2019-10-14T14:41:43.506827Z","id": 10000,"is_primary": true,"verified": true},{"address": "jass@test.com","created_at": "2019-11-14T18:51:23.816532Z","id": 10001,"is_primary": false,"verified": true}],"fname": "Hugh","id": 1000000,"lname": "Jass","referral_code": "6W56QFFVIIJ2","tfa_enabled": true,"verification": "none","verified_email": true,"withdraw_limit": 0}}}`
+	balancesTestData = `{"data": {"balances": [{"balance": "100000000","currency": "BCH"},{"balance": "99992435.78253015","currency": "LTC"},{"balance": "99927153.76074182","currency": "BTC"}]}}`
+)
 
 func TestQtradeClient_generateHMAC(t *testing.T) {
 	testCases := []struct {
@@ -82,12 +85,77 @@ func TestQtradeClient_generateHMAC(t *testing.T) {
 	}
 }
 
+func TestNewQtradeClient_GetUserInfo(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/me",
+		httpmock.NewStringResponder(200, userTestData))
+
+	client := NewQtradeClient(
+		Configuration{
+			Auth: Auth{
+				KeyID: "1",
+				Key:   "1111111111111111111111111111111111111111111111111111111111111111",
+			},
+			Endpoint: "http://localhost",
+		})
+
+	t1, _ := time.Parse(time.RFC3339, "2019-10-14T14:41:43.506827Z")
+	t2, _ := time.Parse(time.RFC3339, "2019-11-14T18:51:23.816532Z")
+
+	want := &GetUserInfoResult{
+		Data: struct {
+			User UserInfo `json:"user"`
+		}{
+			User: UserInfo{
+				CanLogin:    true,
+				CanTrade:    true,
+				CanWithdraw: true,
+				Email:       "hugh@test.com",
+				EmailAddresses: []EmailAddress{
+					{
+						Address:   "hugh@test.com",
+						CreatedAt: t1,
+						ID:        10000,
+						IsPrimary: true,
+						Verified:  true,
+					},
+					{
+						Address:   "jass@test.com",
+						CreatedAt: t2,
+						ID:        10001,
+						IsPrimary: false,
+						Verified:  true,
+					},
+				},
+				FirstName:     "Hugh",
+				LastName:      "Jass",
+				ID:            1000000,
+				ReferralCode:  "6W56QFFVIIJ2",
+				TFAEnabled:    true,
+				Verification:  "none",
+				VerifiedEmail: true,
+				WithdrawLimit: 0,
+			},
+		},
+	}
+
+	got, err := client.GetUserInfo(context.Background())
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/me"])
+}
+
 func TestQtradeClient_GetBalances(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	// Exact URL match
-	httpmock.RegisterResponder("GET", "http://localhost/user/balances",
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/balances",
 		httpmock.NewStringResponder(200, balancesTestData))
 
 	client := NewQtradeClient(
@@ -100,7 +168,9 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 		})
 
 	want := &GetBalancesResult{
-		Data: Balances{
+		Data: struct {
+			Balances []Balance `json:"balances"`
+		}{
 			Balances: []Balance{
 				{
 					Currency: "BCH",
@@ -123,5 +193,5 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 		assert.Equal(t, want, got)
 	}
 
-	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/user/balances"])
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/balances"])
 }
