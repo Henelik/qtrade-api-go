@@ -15,17 +15,24 @@ import (
 type QtradeClient struct {
 	Client *http.Client
 	Config Configuration
+	Auth   Auth
 }
 
-func NewQtradeClient(config Configuration) *QtradeClient {
+func NewQtradeClient(config Configuration) (*QtradeClient, error) {
 	client := &http.Client{
 		Timeout: config.Timeout,
+	}
+
+	auth, err := AuthFromKeypair(config.HMACKeypair)
+	if err != nil {
+		return nil, err
 	}
 
 	return &QtradeClient{
 		Client: client,
 		Config: config,
-	}
+		Auth:   *auth,
+	}, nil
 }
 
 func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
@@ -50,12 +57,12 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
 	}
 
 	reqDetails.WriteString("\n")
-	reqDetails.WriteString(client.Config.Auth.Key)
+	reqDetails.WriteString(client.Auth.Key)
 
 	hash := sha256.Sum256(reqDetails.Bytes())
 
 	hmac := "HMAC-SHA256 " +
-		client.Config.Auth.KeyID + ":" +
+		client.Auth.KeyID + ":" +
 		base64.StdEncoding.EncodeToString(hash[:])
 
 	return hmac, nil
