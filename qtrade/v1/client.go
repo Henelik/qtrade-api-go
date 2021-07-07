@@ -117,3 +117,11 @@ func (client *QtradeClient) GetUserMarket(ctx context.Context, market string) (*
 
 	return result, err
 }
+
+func (client *QtradeClient) GetOrders(ctx context.Context) (*GetOrdersResult, error) {
+	result := new(GetOrdersResult)
+
+	err := client.doRequest(ctx, "GET", "/v1/user/orders", result)
+
+	return result, err
+}

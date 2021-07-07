@@ -80,3 +80,9 @@ type UserMarketData struct {
 	MarketBalance float64 `json:"market_balance,string"`
 	OpenOrders    []Order `json:"open_orders"`
 }
+
+type GetOrdersResult struct {
+	Data struct {
+		Orders []Order `json:"orders"`
+	} `json:"data"`
+}
