@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -12,61 +11,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type testBody struct {
-	data   []byte
-	closed bool
-}
-
-func (t testBody) Read(p []byte) (n int, err error) {
-	p = t.data
-	return len(t.data), nil
-}
-
-func (t testBody) Close() error {
-	if t.closed {
-		return io.ErrClosedPipe
-	}
-	t.closed = true
-	return nil
-}
-
 const (
 	userTestData     = `{"data": {"user": {"can_login": true,"can_trade": true,"can_withdraw": true,"email": "hugh@test.com","email_addresses": [{"address": "hugh@test.com","created_at": "2019-10-14T14:41:43.506827Z","id": 10000,"is_primary": true,"verified": true},{"address": "jass@test.com","created_at": "2019-11-14T18:51:23.816532Z","id": 10001,"is_primary": false,"verified": true}],"fname": "Hugh","id": 1000000,"lname": "Jass","referral_code": "6W56QFFVIIJ2","tfa_enabled": true,"verification": "none","verified_email": true,"withdraw_limit": 0}}}`
 	balancesTestData = `{"data": {"balances": [{"balance": "100000000","currency": "BCH"},{"balance": "99992435.78253015","currency": "LTC"},{"balance": "99927153.76074182","currency": "BTC"}]}}`
 )
 
-var testClient = NewQtradeClient(
+var testClient, _ = NewQtradeClient(
 	Configuration{
-		Auth: Auth{
-			KeyID: "1",
-			Key:   "1111111111111111111111111111111111111111111111111111111111111111",
-		},
-		Endpoint: "http://localhost",
-		Timeout:  time.Second * 10,
+		HMACKeypair: "1:1111111111111111111111111111111111111111111111111111111111111111",
+		Endpoint:    "http://localhost",
+		Timeout:     time.Second * 10,
 	})
 
 func TestQtradeClient_generateHMAC(t *testing.T) {
 	testCases := []struct {
 		name string
-		auth Auth
+		hmac string
 		url  string
 		want string
 	}{
 		{
 			name: "no query string",
-			auth: Auth{
-				KeyID: "256",
-				Key:   "vwj043jtrw4o5igw4oi5jwoi45g",
-			},
+			hmac: "256:vwj043jtrw4o5igw4oi5jwoi45g",
 			url:  "http://google.com/",
 			want: "HMAC-SHA256 256:iyfC4n+bE+3hLgMJns1Z67FKA7O5qm5PgDvZHGraMTQ=",
 		},
 		{
 			name: "with query string",
-			auth: Auth{
-				KeyID: "1",
-				Key:   "1111111111111111111111111111111111111111111111111111111111111111",
-			},
+			hmac: "1:1111111111111111111111111111111111111111111111111111111111111111",
 			url:  "https://api.qtrade.io/v1/user/orders?open=false",
 			want: "HMAC-SHA256 1:4S8CauoSJcBbQsdcqpqvzN/aFyVJgADXU05eppDxiFA=",
 		},
@@ -78,10 +50,11 @@ func TestQtradeClient_generateHMAC(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			client := NewQtradeClient(
+			client, _ := NewQtradeClient(
 				Configuration{
-					Auth:     tc.auth,
-					Endpoint: "localhost:420",
+					HMACKeypair: tc.hmac,
+					Endpoint:    "localhost:420",
+					Timeout:     time.Second * 10,
 				})
 
 			req, err := http.NewRequest("GET", tc.url, nil)
