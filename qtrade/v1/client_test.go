@@ -35,6 +35,16 @@ const (
 	balancesTestData = `{"data": {"balances": [{"balance": "100000000","currency": "BCH"},{"balance": "99992435.78253015","currency": "LTC"},{"balance": "99927153.76074182","currency": "BTC"}]}}`
 )
 
+var testClient = NewQtradeClient(
+	Configuration{
+		Auth: Auth{
+			KeyID: "1",
+			Key:   "1111111111111111111111111111111111111111111111111111111111111111",
+		},
+		Endpoint: "http://localhost",
+		Timeout:  time.Second * 10,
+	})
+
 func TestQtradeClient_generateHMAC(t *testing.T) {
 	testCases := []struct {
 		name string
@@ -93,15 +103,6 @@ func TestNewQtradeClient_GetUserInfo(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost/v1/user/me",
 		httpmock.NewStringResponder(200, userTestData))
 
-	client := NewQtradeClient(
-		Configuration{
-			Auth: Auth{
-				KeyID: "1",
-				Key:   "1111111111111111111111111111111111111111111111111111111111111111",
-			},
-			Endpoint: "http://localhost",
-		})
-
 	t1, _ := time.Parse(time.RFC3339, "2019-10-14T14:41:43.506827Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-11-14T18:51:23.816532Z")
 
@@ -142,7 +143,7 @@ func TestNewQtradeClient_GetUserInfo(t *testing.T) {
 		},
 	}
 
-	got, err := client.GetUserInfo(context.Background())
+	got, err := testClient.GetUserInfo(context.Background())
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}
@@ -157,15 +158,6 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 	// Exact URL match
 	httpmock.RegisterResponder("GET", "http://localhost/v1/user/balances",
 		httpmock.NewStringResponder(200, balancesTestData))
-
-	client := NewQtradeClient(
-		Configuration{
-			Auth: Auth{
-				KeyID: "1",
-				Key:   "1111111111111111111111111111111111111111111111111111111111111111",
-			},
-			Endpoint: "http://localhost",
-		})
 
 	want := &GetBalancesResult{
 		Data: struct {
@@ -188,7 +180,7 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 		},
 	}
 
-	got, err := client.GetBalances(context.Background())
+	got, err := testClient.GetBalances(context.Background())
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}

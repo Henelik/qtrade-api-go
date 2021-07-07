@@ -19,7 +19,7 @@ type QtradeClient struct {
 
 func NewQtradeClient(config Configuration) *QtradeClient {
 	client := &http.Client{
-		Timeout: 10,
+		Timeout: config.Timeout,
 	}
 
 	return &QtradeClient{

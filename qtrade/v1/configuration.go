@@ -1,10 +1,14 @@
 package v1
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 type Configuration struct {
 	Auth     Auth
 	Endpoint string
+	Timeout  time.Duration
 }
 
 type Auth struct {
