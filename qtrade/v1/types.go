@@ -44,6 +44,7 @@ type Order struct {
 	OrderType             string    `json:"order_type"`
 	Price                 float64   `json:"price,string"`
 	Trades                []Trade   `json:"trades"`
+	CloseReason           string    `json:"close_reason,omitempty"`
 }
 
 type Trade struct {
@@ -84,5 +85,11 @@ type UserMarketData struct {
 type GetOrdersResult struct {
 	Data struct {
 		Orders []Order `json:"orders"`
+	} `json:"data"`
+}
+
+type GetOrderResult struct {
+	Data struct {
+		Order Order `json:"order"`
 	} `json:"data"`
 }

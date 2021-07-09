@@ -134,3 +134,11 @@ func (client *QtradeClient) GetOrders(ctx context.Context, params map[string]str
 
 	return result, err
 }
+
+func (client *QtradeClient) GetOrder(ctx context.Context, id int) (*GetOrderResult, error) {
+	result := new(GetOrderResult)
+
+	err := client.doRequest(ctx, "GET", fmt.Sprintf("/v1/user/order/%v", id), result, nil)
+
+	return result, err
+}
