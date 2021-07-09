@@ -155,7 +155,7 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 		},
 	}
 
-	got, err := testClient.GetBalances(context.Background())
+	got, err := testClient.GetBalances(context.Background(), nil)
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}
@@ -252,7 +252,7 @@ func TestQtradeClient_GetUserMarket(t *testing.T) {
 		},
 	}
 
-	got, err := testClient.GetUserMarket(context.Background(), "LTC_BTC")
+	got, err := testClient.GetUserMarket(context.Background(), "LTC_BTC", nil)
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}
@@ -321,7 +321,7 @@ func TestQtradeClient_GetOrders(t *testing.T) {
 		},
 	}}
 
-	got, err := testClient.GetOrders(context.Background())
+	got, err := testClient.GetOrders(context.Background(), nil)
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}
