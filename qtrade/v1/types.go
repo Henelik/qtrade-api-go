@@ -52,9 +52,12 @@ type Trade struct {
 	BaseFee      float64   `json:"base_fee,string"`
 	CreatedAt    time.Time `json:"created_at"`
 	ID           int       `json:"id"`
+	OrderID      int       `json:"order_id,omitempty"`
+	MarketID     int       `json:"market_id,omitempty"`
 	MarketAmount float64   `json:"market_amount,string"`
 	Price        float64   `json:"price,string"`
 	Taker        bool      `json:"taker"`
+	Side         string    `json:"side,omitempty"`
 }
 
 // API results
@@ -91,5 +94,11 @@ type GetOrdersResult struct {
 type GetOrderResult struct {
 	Data struct {
 		Order Order `json:"order"`
+	} `json:"data"`
+}
+
+type GetTradesResult struct {
+	Data struct {
+		Trades []Trade `json:"trades"`
 	} `json:"data"`
 }
