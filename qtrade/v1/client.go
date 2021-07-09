@@ -68,7 +68,7 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
 	return hmac, nil
 }
 
-func (client *QtradeClient) doRequest(ctx context.Context, method string, uri string, result interface{}) error {
+func (client *QtradeClient) doRequest(ctx context.Context, method string, uri string, result interface{}, queryParams map[string]string) error {
 	req, err := http.NewRequestWithContext(ctx, method, client.Config.Endpoint+uri, nil)
 	if err != nil {
 		return err
@@ -77,6 +77,15 @@ func (client *QtradeClient) doRequest(ctx context.Context, method string, uri st
 	auth, err := client.generateHMAC(req)
 	if err != nil {
 		return err
+	}
+
+	err = req.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	for k, v := range queryParams {
+		req.Form.Set(k, v)
 	}
 
 	req.Header.Set("Authorization", auth)
@@ -97,31 +106,31 @@ func (client *QtradeClient) doRequest(ctx context.Context, method string, uri st
 func (client *QtradeClient) GetUserInfo(ctx context.Context) (*GetUserInfoResult, error) {
 	result := new(GetUserInfoResult)
 
-	err := client.doRequest(ctx, "GET", "/v1/user/me", result)
+	err := client.doRequest(ctx, "GET", "/v1/user/me", result, nil)
 
 	return result, err
 }
 
-func (client *QtradeClient) GetBalances(ctx context.Context) (*GetBalancesResult, error) {
+func (client *QtradeClient) GetBalances(ctx context.Context, params map[string]string) (*GetBalancesResult, error) {
 	result := new(GetBalancesResult)
 
-	err := client.doRequest(ctx, "GET", "/v1/user/balances", result)
+	err := client.doRequest(ctx, "GET", "/v1/user/balances", result, params)
 
 	return result, err
 }
 
-func (client *QtradeClient) GetUserMarket(ctx context.Context, market string) (*GetUserMarketResult, error) {
+func (client *QtradeClient) GetUserMarket(ctx context.Context, market string, params map[string]string) (*GetUserMarketResult, error) {
 	result := new(GetUserMarketResult)
 
-	err := client.doRequest(ctx, "GET", "/v1/user/market/"+market, result)
+	err := client.doRequest(ctx, "GET", "/v1/user/market/"+market, result, params)
 
 	return result, err
 }
 
-func (client *QtradeClient) GetOrders(ctx context.Context) (*GetOrdersResult, error) {
+func (client *QtradeClient) GetOrders(ctx context.Context, params map[string]string) (*GetOrdersResult, error) {
 	result := new(GetOrdersResult)
 
-	err := client.doRequest(ctx, "GET", "/v1/user/orders", result)
+	err := client.doRequest(ctx, "GET", "/v1/user/orders", result, params)
 
 	return result, err
 }
