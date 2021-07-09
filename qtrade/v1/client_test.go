@@ -16,6 +16,7 @@ const (
 	balancesTestData   = `{"data": {"balances": [{"balance": "100000000","currency": "BCH"},{"balance": "99992435.78253015","currency": "LTC"},{"balance": "99927153.76074182","currency": "BTC"}]}}`
 	userMarketTestData = `{"data": {"base_balance": "99927153.76074182","closed_orders": [{"base_amount": "0.09102782","created_at": "2018-04-06T17:59:36.366493Z","id": 13252,"market_amount": "4.99896025","market_amount_remaining": "0","market_id": 1,"open": false,"order_type": "buy_limit","price": "9.90682437","trades": [{"base_amount": "49.37394186","base_fee": "0.12343485","created_at": "2018-04-06T17:59:36.366493Z","id": 10289,"market_amount": "4.99298105","price": "9.88866999","taker": true},{"base_amount": "0.05907856","base_fee": "0.00014769","created_at": "2018-04-06T17:59:36.366493Z","id": 10288,"market_amount": "0.0059792","price": "9.88068047","taker": true}]}],"market_balance": "99992435.78253015","open_orders": [{"base_amount": "49.45063516","created_at": "2018-04-06T17:59:35.867526Z","id": 13249,"market_amount": "5.0007505","market_amount_remaining": "5.0007505","market_id": 1,"open": true,"order_type": "buy_limit","price": "9.86398279","trades": null},{"created_at": "2018-04-06T17:59:27.347006Z","id": 13192,"market_amount": "5.00245975","market_amount_remaining": "0.0173805","market_id": 1,"open": true,"order_type": "sell_limit","price": "9.90428849","trades": [{"base_amount": "49.37366303","base_fee": "0.12343415","created_at": "2018-04-06T17:59:27.531716Z","id": 10241,"market_amount": "4.98507925","price": "9.90428849","taker": false}]}]}}`
 	ordersTestData     = `{"data": {"orders": [{"base_amount": "0.09102782","created_at": "2018-04-06T17:59:36.366493Z","id": 13252,"market_amount": "4.99896025","market_amount_remaining": "0","market_id": 1,"open": false,"order_type": "buy_limit","price": "9.90682437","trades": [{"base_amount": "49.37394186","base_fee": "0.12343485","created_at": "2018-04-06T17:59:36.366493Z","id": 10289,"market_amount": "4.99298105","price": "9.88866999","taker": true},{"base_amount": "0.05907856","base_fee": "0.00014769","created_at": "2018-04-06T17:59:36.366493Z","id": 10288,"market_amount": "0.0059792","price": "9.88068047","taker": true}]},{"base_amount": "49.33046306","created_at": "2018-04-06T17:59:12.941034Z","id": 13099,"market_amount": "4.9950993","market_amount_remaining": "4.9950993","market_id": 1,"open": true,"order_type": "buy_limit","price": "9.85114439","trades": null}]}}`
+	orderTestData      = `{"data": {"order": {"base_amount": "0","close_reason": "canceled","created_at": "2018-11-08T00:15:57.258122Z","id": 8806681,"market_amount": "500","market_amount_remaining": "0","market_id": 36,"open": false,"order_type": "sell_limit","price": "0.00000033","trades": null}}}`
 )
 
 var testClient, _ = NewQtradeClient(
@@ -272,7 +273,7 @@ func TestQtradeClient_GetOrders(t *testing.T) {
 	t2, _ := time.Parse(time.RFC3339, "2018-04-06T17:59:12.941034Z")
 
 	want := &GetOrdersResult{Data: struct {
-		Orders []Order "json:\"orders\""
+		Orders []Order `json:"orders"`
 	}{
 		Orders: []Order{
 			{
@@ -327,4 +328,40 @@ func TestQtradeClient_GetOrders(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/orders"])
+}
+
+func TestQtradeClient_GetOrder(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/order/8806681",
+		httpmock.NewStringResponder(200, orderTestData))
+
+	t1, _ := time.Parse(time.RFC3339, "2018-11-08T00:15:57.258122Z")
+
+	want := &GetOrderResult{Data: struct {
+		Order Order `json:"order"`
+	}{
+		Order: Order{
+			BaseAmount:            0,
+			CreatedAt:             t1,
+			ID:                    8806681,
+			MarketAmount:          500,
+			MarketAmountRemaining: 0,
+			MarketID:              36,
+			Open:                  false,
+			OrderType:             "sell_limit",
+			Price:                 0.00000033,
+			Trades:                nil,
+			CloseReason:           "canceled",
+		},
+	}}
+
+	got, err := testClient.GetOrder(context.Background(), 8806681)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/order/8806681"])
 }
