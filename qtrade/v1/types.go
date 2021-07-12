@@ -60,7 +60,16 @@ type Trade struct {
 	Side         string    `json:"side,omitempty"`
 }
 
+type QtradeError struct {
+	Code  string `json:"code"`
+	Title string `json:"title"`
+}
+
 // API results
+
+type ErrorResult struct {
+	Errors []QtradeError `json:"errors"`
+}
 
 type GetUserInfoResult struct {
 	Data struct {
@@ -102,3 +111,5 @@ type GetTradesResult struct {
 		Trades []Trade `json:"trades"`
 	} `json:"data"`
 }
+
+type CancelOrderResult struct{}
