@@ -430,3 +430,21 @@ func TestQtradeClient_GetTrades(t *testing.T) {
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/trades"])
 }
+
+func TestQtradeClient_CancelOrder(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("POST", "http://localhost/v1/user/cancel_order",
+		httpmock.NewStringResponder(200, ""))
+
+	want := &CancelOrderResult{}
+
+	got, err := testClient.CancelOrder(context.Background(), 109)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/cancel_order"])
+}
