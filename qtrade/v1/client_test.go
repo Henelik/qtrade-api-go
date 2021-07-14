@@ -439,12 +439,8 @@ func TestQtradeClient_CancelOrder(t *testing.T) {
 	httpmock.RegisterResponder("POST", "http://localhost/v1/user/cancel_order",
 		httpmock.NewStringResponder(200, ""))
 
-	want := &CancelOrderResult{}
-
-	got, err := testClient.CancelOrder(context.Background(), 109)
-	if assert.NoError(t, err) {
-		assert.Equal(t, want, got)
-	}
+	err := testClient.CancelOrder(context.Background(), 109)
+	assert.NoError(t, err)
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/cancel_order"])
 }
