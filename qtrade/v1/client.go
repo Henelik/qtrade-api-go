@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type QtradeClient struct {
@@ -90,12 +92,43 @@ func (client *QtradeClient) doRequest(req *http.Request, result interface{}, que
 		return err
 	}
 
+	err = checkForError(resp)
+	if err != nil {
+		return err
+	}
+
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
 	return json.Unmarshal(b, result)
+}
+
+func checkForError(resp *http.Response) error {
+	if resp.StatusCode >= 400 {
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return errors.Wrap(err, "API response: " + resp.Status)
+		}
+
+		apiErrors := new(ErrorResult)
+
+		err = json.Unmarshal(b, apiErrors)
+		if err != nil {
+			return errors.Wrap(err, "API response: " + resp.Status)
+		}
+
+		resultErr := errors.New("API response: " + resp.Status)
+		for _, thisErr := range apiErrors.Errors {
+			resultErr = errors.Wrap(resultErr,
+				fmt.Sprintf("%s: %s", thisErr.Code, thisErr.Title))
+		}
+
+		return resultErr
+	}
+
+	return nil
 }
 
 func (client *QtradeClient) GetUserInfo(ctx context.Context) (*GetUserInfoResult, error) {
@@ -168,16 +201,14 @@ func (client *QtradeClient) GetTrades(ctx context.Context, params map[string]str
 	return result, client.doRequest(req, result, params)
 }
 
-func (client *QtradeClient) CancelOrder(ctx context.Context, id int) (*CancelOrderResult, error) {
-	result := new(CancelOrderResult)
-
+func (client *QtradeClient) CancelOrder(ctx context.Context, id int) (error) {
 	body := map[string]interface{}{
 		"id": id,
 	}
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	fmt.Println(string(bodyBytes))
@@ -187,8 +218,20 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) (*CancelOrd
 		client.Config.Endpoint+"/v1/user/cancel_order",
 		bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, err
+		return errors.Wrap(err, "error making request")
 	}
 
-	return result, client.doRequest(req, result, nil)
+	auth, err := client.generateHMAC(req)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", auth)
+
+	resp, err := client.Client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	return checkForError(resp)
 }
