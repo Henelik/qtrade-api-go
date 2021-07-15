@@ -37,7 +37,7 @@ func NewQtradeClient(config Configuration) (*QtradeClient, error) {
 	}, nil
 }
 
-func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
+func (client *QtradeClient) generateHMAC(req *http.Request) (string, string, error) {
 	timestamp := fmt.Sprintf("%v", time.Now().Unix())
 
 	reqDetails := bytes.NewBufferString(req.Method)
@@ -52,7 +52,7 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
 
 		_, err := req.Body.Read(bodyBytes)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 
 		reqDetails.Write(bodyBytes)
@@ -67,56 +67,62 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, error) {
 		client.Auth.KeyID + ":" +
 		base64.StdEncoding.EncodeToString(hash[:])
 
-	return hmac, nil
+	return hmac, timestamp, nil
 }
 
 func (client *QtradeClient) doRequest(req *http.Request, result interface{}, queryParams map[string]string) error {
 	err := req.ParseForm()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not parse request form")
 	}
 
 	for k, v := range queryParams {
 		req.Form.Set(k, v)
 	}
 
-	auth, err := client.generateHMAC(req)
+	auth, timestamp, err := client.generateHMAC(req)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not generate HMAC")
 	}
 
 	req.Header.Set("Authorization", auth)
+	req.Header.Set("HMAC-Timestamp", timestamp)
 
 	resp, err := client.Client.Do(req)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not complete HTTP request")
 	}
 
 	err = checkForError(resp)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "HTTP error")
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not read response body")
 	}
 
-	return json.Unmarshal(b, result)
+	err = json.Unmarshal(b, result)
+	if err != nil {
+		return errors.Wrap(err, "could not unmarshal request result")
+	}
+
+	return nil
 }
 
 func checkForError(resp *http.Response) error {
 	if resp.StatusCode >= 400 {
 		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return errors.Wrap(err, "API response: " + resp.Status)
+			return errors.Wrap(err, "API response: "+resp.Status)
 		}
 
 		apiErrors := new(ErrorResult)
 
 		err = json.Unmarshal(b, apiErrors)
 		if err != nil {
-			return errors.Wrap(err, "API response: " + resp.Status)
+			return errors.Wrap(err, "API response: "+resp.Status)
 		}
 
 		resultErr := errors.New("API response: " + resp.Status)
@@ -201,7 +207,7 @@ func (client *QtradeClient) GetTrades(ctx context.Context, params map[string]str
 	return result, client.doRequest(req, result, params)
 }
 
-func (client *QtradeClient) CancelOrder(ctx context.Context, id int) (error) {
+func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 	body := map[string]interface{}{
 		"id": id,
 	}
@@ -221,12 +227,13 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) (error) {
 		return errors.Wrap(err, "error making request")
 	}
 
-	auth, err := client.generateHMAC(req)
+	auth, timestamp, err := client.generateHMAC(req)
 	if err != nil {
 		return err
 	}
 
 	req.Header.Set("Authorization", auth)
+	req.Header.Set("HMAC-Timestamp", timestamp)
 
 	resp, err := client.Client.Do(req)
 	if err != nil {
