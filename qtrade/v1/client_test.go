@@ -29,22 +29,22 @@ var testClient, _ = NewQtradeClient(
 
 func TestQtradeClient_generateHMAC(t *testing.T) {
 	testCases := []struct {
-		name string
-		hmac string
-		url  string
-		want string
+		name     string
+		hmac     string
+		url      string
+		wantHMAC string
 	}{
 		{
-			name: "no query string",
-			hmac: "256:vwj043jtrw4o5igw4oi5jwoi45g",
-			url:  "http://google.com/",
-			want: "HMAC-SHA256 256:iyfC4n+bE+3hLgMJns1Z67FKA7O5qm5PgDvZHGraMTQ=",
+			name:     "no query string",
+			hmac:     "256:vwj043jtrw4o5igw4oi5jwoi45g",
+			url:      "http://google.com/",
+			wantHMAC: "HMAC-SHA256 256:iyfC4n+bE+3hLgMJns1Z67FKA7O5qm5PgDvZHGraMTQ=",
 		},
 		{
-			name: "with query string",
-			hmac: "1:1111111111111111111111111111111111111111111111111111111111111111",
-			url:  "https://api.qtrade.io/v1/user/orders?open=false",
-			want: "HMAC-SHA256 1:4S8CauoSJcBbQsdcqpqvzN/aFyVJgADXU05eppDxiFA=",
+			name:     "with query string",
+			hmac:     "1:1111111111111111111111111111111111111111111111111111111111111111",
+			url:      "https://api.qtrade.io/v1/user/orders?open=false",
+			wantHMAC: "HMAC-SHA256 1:4S8CauoSJcBbQsdcqpqvzN/aFyVJgADXU05eppDxiFA=",
 		},
 	}
 
@@ -63,9 +63,9 @@ func TestQtradeClient_generateHMAC(t *testing.T) {
 
 			req, err := http.NewRequest("GET", tc.url, nil)
 			if assert.NoError(t, err) {
-				got, gotErr := client.generateHMAC(req)
+				gotHMAC, _, gotErr := client.generateHMAC(req)
 				if assert.NoError(t, gotErr) {
-					assert.Equal(t, tc.want, got)
+					assert.Equal(t, tc.wantHMAC, gotHMAC)
 				}
 			}
 		})
