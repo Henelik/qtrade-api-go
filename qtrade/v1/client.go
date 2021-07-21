@@ -242,3 +242,42 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 
 	return checkForError(resp)
 }
+
+func Withdraw(ctx context.Context, address string, amount float64, currency string) error {
+	places, err := GetPlaces(currency)
+
+	body := map[string]interface{}{
+		"address": address,
+		"amount":  roundedAmount,
+	}
+
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(bodyBytes))
+
+	req, err := http.NewRequestWithContext(ctx,
+		"POST",
+		client.Config.Endpoint+"/v1/user/cancel_order",
+		bytes.NewReader(bodyBytes))
+	if err != nil {
+		return errors.Wrap(err, "error making request")
+	}
+
+	auth, timestamp, err := client.generateHMAC(req)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", auth)
+	req.Header.Set("HMAC-Timestamp", timestamp)
+
+	resp, err := client.Client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	return checkForError(resp)
+}

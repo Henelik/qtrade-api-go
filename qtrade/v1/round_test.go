@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRound(t *testing.T) {
+func TestRoundFloat64(t *testing.T) {
 	testCases := []struct {
 		name   string
 		x      float64
@@ -41,7 +41,7 @@ func TestRound(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := Round(tc.x, tc.places)
+			got := RoundFloat64(tc.x, tc.places)
 
 			assert.Equal(t, tc.want, got)
 		})
