@@ -244,6 +244,7 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 	return checkForError(resp)
 }
 
+//TODO: add withdraw result
 func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount float64, currency string) error {
 	places, err := GetPlaces(currency)
 	if err != nil {
@@ -265,7 +266,7 @@ func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount
 
 	req, err := http.NewRequestWithContext(ctx,
 		"POST",
-		client.Config.Endpoint+"/v1/user/cancel_order",
+		client.Config.Endpoint+"/v1/user/withdraw",
 		bytes.NewReader(bodyBytes))
 	if err != nil {
 		return errors.Wrap(err, "error making request")
