@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -243,12 +244,16 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 	return checkForError(resp)
 }
 
-func Withdraw(ctx context.Context, address string, amount float64, currency string) error {
+func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount float64, currency string) error {
 	places, err := GetPlaces(currency)
+	if err != nil {
+		return errors.Wrap(err, "could not withdraw")
+	}
 
 	body := map[string]interface{}{
-		"address": address,
-		"amount":  roundedAmount,
+		"address":  address,
+		"amount":   strconv.FormatFloat(amount, 'f', places, 64),
+		"currency": currency,
 	}
 
 	bodyBytes, err := json.Marshal(body)
