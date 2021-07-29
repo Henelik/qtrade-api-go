@@ -218,8 +218,6 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 		return err
 	}
 
-	fmt.Println(string(bodyBytes))
-
 	req, err := http.NewRequestWithContext(ctx,
 		"POST",
 		client.Config.Endpoint+"/v1/user/cancel_order",
@@ -244,11 +242,10 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 	return checkForError(resp)
 }
 
-//TODO: add withdraw result
-func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount float64, currency string) error {
+func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount float64, currency string) (*WithdrawData, error) {
 	places, err := GetPlaces(currency)
 	if err != nil {
-		return errors.Wrap(err, "could not withdraw")
+		return nil, errors.Wrap(err, "could not withdraw")
 	}
 
 	body := map[string]interface{}{
@@ -259,22 +256,22 @@ func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Println(string(bodyBytes))
+	result := new(WithdrawResult)
 
 	req, err := http.NewRequestWithContext(ctx,
 		"POST",
 		client.Config.Endpoint+"/v1/user/withdraw",
 		bytes.NewReader(bodyBytes))
 	if err != nil {
-		return errors.Wrap(err, "error making request")
+		return nil, errors.Wrap(err, "error making request")
 	}
 
 	auth, timestamp, err := client.generateHMAC(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	req.Header.Set("Authorization", auth)
@@ -282,8 +279,23 @@ func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount
 
 	resp, err := client.Client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return checkForError(resp)
+	err = checkForError(resp)
+	if err != nil {
+		return nil, errors.Wrap(err, "HTTP error")
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read response body")
+	}
+
+	err = json.Unmarshal(b, result)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not unmarshal request result")
+	}
+
+	return result.Data, nil
 }
