@@ -18,6 +18,7 @@ const (
 	ordersTestData     = `{"data": {"orders": [{"base_amount": "0.09102782","created_at": "2018-04-06T17:59:36.366493Z","id": 13252,"market_amount": "4.99896025","market_amount_remaining": "0","market_id": 1,"open": false,"order_type": "buy_limit","price": "9.90682437","trades": [{"base_amount": "49.37394186","base_fee": "0.12343485","created_at": "2018-04-06T17:59:36.366493Z","id": 10289,"market_amount": "4.99298105","price": "9.88866999","taker": true},{"base_amount": "0.05907856","base_fee": "0.00014769","created_at": "2018-04-06T17:59:36.366493Z","id": 10288,"market_amount": "0.0059792","price": "9.88068047","taker": true}]},{"base_amount": "49.33046306","created_at": "2018-04-06T17:59:12.941034Z","id": 13099,"market_amount": "4.9950993","market_amount_remaining": "4.9950993","market_id": 1,"open": true,"order_type": "buy_limit","price": "9.85114439","trades": null}]}}`
 	orderTestData      = `{"data": {"order": {"base_amount": "0","close_reason": "canceled","created_at": "2018-11-08T00:15:57.258122Z","id": 8806681,"market_amount": "500","market_amount_remaining": "0","market_id": 36,"open": false,"order_type": "sell_limit","price": "0.00000033","trades": null}}}`
 	tradesTestData     = `{"data": {"trades": [{"base_amount": "0.00022751","base_fee": "0","created_at": "2019-10-14T17:42:42.874812Z","id": 63286,"market_amount": "733.93113296","market_id": 36,"order_id": 8141515,"price": "0.00000031","side": "sell","taker": false},{"base_amount": "0.000434","base_fee": "0.00000217","created_at": "2019-10-14T17:42:42.874812Z","id": 63287,"market_amount": "1400","market_id": 36,"order_id": 8141515,"price": "0.00000031","side": "sell","taker": true},{"base_amount": "0.000135","base_fee": "0","created_at": "2019-10-19T11:10:19.387393Z","id": 64129,"market_amount": "500","market_id": 36,"order_id": 8209249,"price": "0.00000027","side": "buy","taker": false}]}}`
+	withdrawTestData   = `{"data": {"code": "initiated","id": 3,"result": "Withdraw initiated. Please allow 3-5 minutes for our system to process."}}`
 )
 
 var testClient, _ = NewQtradeClient(
@@ -443,4 +444,26 @@ func TestQtradeClient_CancelOrder(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/cancel_order"])
+}
+
+func TestQtradeClient_Withdraw(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("POST", "http://localhost/v1/user/withdraw",
+		httpmock.NewStringResponder(200, withdrawTestData))
+
+	want := &WithdrawData{
+		Code:   "initiated",
+		ID:     3,
+		Result: "Withdraw initiated. Please allow 3-5 minutes for our system to process.",
+	}
+
+	got, err := testClient.Withdraw(context.Background(), "abcd", 20, "BTC")
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/withdraw"])
 }

@@ -112,4 +112,12 @@ type GetTradesResult struct {
 	} `json:"data"`
 }
 
-type CancelOrderResult struct{}
+type WithdrawResult struct {
+	Data *WithdrawData `json:"data"`
+}
+
+type WithdrawData struct {
+	Code   string `json:"code"`
+	ID     int    `json:"id"`
+	Result string `json:"result"`
+}
