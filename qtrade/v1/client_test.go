@@ -84,41 +84,35 @@ func TestNewQtradeClient_GetUserInfo(t *testing.T) {
 	t1, _ := time.Parse(time.RFC3339, "2019-10-14T14:41:43.506827Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-11-14T18:51:23.816532Z")
 
-	want := &GetUserInfoResult{
-		Data: struct {
-			User UserInfo `json:"user"`
-		}{
-			User: UserInfo{
-				CanLogin:    true,
-				CanTrade:    true,
-				CanWithdraw: true,
-				Email:       "hugh@test.com",
-				EmailAddresses: []EmailAddress{
-					{
-						Address:   "hugh@test.com",
-						CreatedAt: t1,
-						ID:        10000,
-						IsPrimary: true,
-						Verified:  true,
-					},
-					{
-						Address:   "jass@test.com",
-						CreatedAt: t2,
-						ID:        10001,
-						IsPrimary: false,
-						Verified:  true,
-					},
-				},
-				FirstName:     "Hugh",
-				LastName:      "Jass",
-				ID:            1000000,
-				ReferralCode:  "6W56QFFVIIJ2",
-				TFAEnabled:    true,
-				Verification:  "none",
-				VerifiedEmail: true,
-				WithdrawLimit: 0,
+	want := &UserInfo{
+		CanLogin:    true,
+		CanTrade:    true,
+		CanWithdraw: true,
+		Email:       "hugh@test.com",
+		EmailAddresses: []EmailAddress{
+			{
+				Address:   "hugh@test.com",
+				CreatedAt: t1,
+				ID:        10000,
+				IsPrimary: true,
+				Verified:  true,
+			},
+			{
+				Address:   "jass@test.com",
+				CreatedAt: t2,
+				ID:        10001,
+				IsPrimary: false,
+				Verified:  true,
 			},
 		},
+		FirstName:     "Hugh",
+		LastName:      "Jass",
+		ID:            1000000,
+		ReferralCode:  "6W56QFFVIIJ2",
+		TFAEnabled:    true,
+		Verification:  "none",
+		VerifiedEmail: true,
+		WithdrawLimit: 0,
 	}
 
 	got, err := testClient.GetUserInfo(context.Background())
@@ -137,24 +131,18 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost/v1/user/balances",
 		httpmock.NewStringResponder(200, balancesTestData))
 
-	want := &GetBalancesResult{
-		Data: struct {
-			Balances []Balance `json:"balances"`
-		}{
-			Balances: []Balance{
-				{
-					Currency: "BCH",
-					Balance:  "100000000",
-				},
-				{
-					Currency: "LTC",
-					Balance:  "99992435.78253015",
-				},
-				{
-					Currency: "BTC",
-					Balance:  "99927153.76074182",
-				},
-			},
+	want := []Balance{
+		{
+			Currency: "BCH",
+			Balance:  "100000000",
+		},
+		{
+			Currency: "LTC",
+			Balance:  "99992435.78253015",
+		},
+		{
+			Currency: "BTC",
+			Balance:  "99927153.76074182",
 		},
 	}
 
@@ -179,105 +167,9 @@ func TestQtradeClient_GetUserMarket(t *testing.T) {
 	t3, _ := time.Parse(time.RFC3339, "2018-04-06T17:59:27.347006Z")
 	t4, _ := time.Parse(time.RFC3339, "2018-04-06T17:59:27.531716Z")
 
-	want := &GetUserMarketResult{
-		Data: UserMarketData{
-			BaseBalance: 99927153.76074182,
-			ClosedOrders: []Order{
-				{
-					BaseAmount:            0.09102782,
-					CreatedAt:             t1,
-					ID:                    13252,
-					MarketAmount:          4.99896025,
-					MarketAmountRemaining: 0,
-					MarketID:              1,
-					Open:                  false,
-					OrderType:             "buy_limit",
-					Price:                 9.90682437,
-					Trades: []Trade{
-						{
-							BaseAmount:   49.37394186,
-							BaseFee:      0.12343485,
-							CreatedAt:    t1,
-							ID:           10289,
-							MarketAmount: 4.99298105,
-							Price:        9.88866999,
-							Taker:        true,
-						},
-						{
-							BaseAmount:   0.05907856,
-							BaseFee:      0.00014769,
-							CreatedAt:    t1,
-							ID:           10288,
-							MarketAmount: 0.0059792,
-							Price:        9.88068047,
-							Taker:        true,
-						},
-					},
-				},
-			},
-			MarketBalance: 99992435.78253015,
-			OpenOrders: []Order{
-				{
-					BaseAmount:            49.45063516,
-					CreatedAt:             t2,
-					ID:                    13249,
-					MarketAmount:          5.0007505,
-					MarketAmountRemaining: 5.0007505,
-					MarketID:              1,
-					Open:                  true,
-					OrderType:             "buy_limit",
-					Price:                 9.86398279,
-					Trades:                nil,
-				},
-				{
-					BaseAmount:            0,
-					CreatedAt:             t3,
-					ID:                    13192,
-					MarketAmount:          5.00245975,
-					MarketAmountRemaining: 0.0173805,
-					MarketID:              1,
-					Open:                  true,
-					OrderType:             "sell_limit",
-					Price:                 9.90428849,
-					Trades: []Trade{
-						{
-							BaseAmount:   49.37366303,
-							BaseFee:      0.12343415,
-							CreatedAt:    t4,
-							ID:           10241,
-							MarketAmount: 4.98507925,
-							Price:        9.90428849,
-							Taker:        false,
-						},
-					},
-				},
-			},
-		},
-	}
-
-	got, err := testClient.GetUserMarket(context.Background(), "LTC_BTC", nil)
-	if assert.NoError(t, err) {
-		assert.Equal(t, want, got)
-	}
-
-	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/market/LTC_BTC"])
-}
-
-func TestQtradeClient_GetOrders(t *testing.T) {
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	// Exact URL match
-	httpmock.RegisterResponder("GET", "http://localhost/v1/user/orders",
-		httpmock.NewStringResponder(200, ordersTestData))
-
-	t1, _ := time.Parse(time.RFC3339, "2018-04-06T17:59:36.366493Z")
-	t2, _ := time.Parse(time.RFC3339, "2018-04-06T17:59:12.941034Z")
-
-	want := &GetOrdersResult{Data: struct {
-		Orders []Order `json:"orders"`
-	}{
-		Orders: []Order{
+	want := &UserMarketData{
+		BaseBalance: 99927153.76074182,
+		ClosedOrders: []Order{
 			{
 				BaseAmount:            0.09102782,
 				CreatedAt:             t1,
@@ -309,20 +201,110 @@ func TestQtradeClient_GetOrders(t *testing.T) {
 					},
 				},
 			},
+		},
+		MarketBalance: 99992435.78253015,
+		OpenOrders: []Order{
 			{
-				BaseAmount:            49.33046306,
+				BaseAmount:            49.45063516,
 				CreatedAt:             t2,
-				ID:                    13099,
-				MarketAmount:          4.9950993,
-				MarketAmountRemaining: 4.9950993,
+				ID:                    13249,
+				MarketAmount:          5.0007505,
+				MarketAmountRemaining: 5.0007505,
 				MarketID:              1,
 				Open:                  true,
 				OrderType:             "buy_limit",
-				Price:                 9.85114439,
-				Trades:                []Trade(nil),
+				Price:                 9.86398279,
+				Trades:                nil,
+			},
+			{
+				BaseAmount:            0,
+				CreatedAt:             t3,
+				ID:                    13192,
+				MarketAmount:          5.00245975,
+				MarketAmountRemaining: 0.0173805,
+				MarketID:              1,
+				Open:                  true,
+				OrderType:             "sell_limit",
+				Price:                 9.90428849,
+				Trades: []Trade{
+					{
+						BaseAmount:   49.37366303,
+						BaseFee:      0.12343415,
+						CreatedAt:    t4,
+						ID:           10241,
+						MarketAmount: 4.98507925,
+						Price:        9.90428849,
+						Taker:        false,
+					},
+				},
 			},
 		},
-	}}
+	}
+
+	got, err := testClient.GetUserMarket(context.Background(), "LTC_BTC", nil)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/market/LTC_BTC"])
+}
+
+func TestQtradeClient_GetOrders(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/orders",
+		httpmock.NewStringResponder(200, ordersTestData))
+
+	t1, _ := time.Parse(time.RFC3339, "2018-04-06T17:59:36.366493Z")
+	t2, _ := time.Parse(time.RFC3339, "2018-04-06T17:59:12.941034Z")
+
+	want := []Order{
+		{
+			BaseAmount:            0.09102782,
+			CreatedAt:             t1,
+			ID:                    13252,
+			MarketAmount:          4.99896025,
+			MarketAmountRemaining: 0,
+			MarketID:              1,
+			Open:                  false,
+			OrderType:             "buy_limit",
+			Price:                 9.90682437,
+			Trades: []Trade{
+				{
+					BaseAmount:   49.37394186,
+					BaseFee:      0.12343485,
+					CreatedAt:    t1,
+					ID:           10289,
+					MarketAmount: 4.99298105,
+					Price:        9.88866999,
+					Taker:        true,
+				},
+				{
+					BaseAmount:   0.05907856,
+					BaseFee:      0.00014769,
+					CreatedAt:    t1,
+					ID:           10288,
+					MarketAmount: 0.0059792,
+					Price:        9.88068047,
+					Taker:        true,
+				},
+			},
+		},
+		{
+			BaseAmount:            49.33046306,
+			CreatedAt:             t2,
+			ID:                    13099,
+			MarketAmount:          4.9950993,
+			MarketAmountRemaining: 4.9950993,
+			MarketID:              1,
+			Open:                  true,
+			OrderType:             "buy_limit",
+			Price:                 9.85114439,
+			Trades:                []Trade(nil),
+		},
+	}
 
 	got, err := testClient.GetOrders(context.Background(), nil)
 	if assert.NoError(t, err) {
@@ -342,23 +324,19 @@ func TestQtradeClient_GetOrder(t *testing.T) {
 
 	t1, _ := time.Parse(time.RFC3339, "2018-11-08T00:15:57.258122Z")
 
-	want := &GetOrderResult{Data: struct {
-		Order Order `json:"order"`
-	}{
-		Order: Order{
-			BaseAmount:            0,
-			CreatedAt:             t1,
-			ID:                    8806681,
-			MarketAmount:          500,
-			MarketAmountRemaining: 0,
-			MarketID:              36,
-			Open:                  false,
-			OrderType:             "sell_limit",
-			Price:                 0.00000033,
-			Trades:                nil,
-			CloseReason:           "canceled",
-		},
-	}}
+	want := &Order{
+		BaseAmount:            0,
+		CreatedAt:             t1,
+		ID:                    8806681,
+		MarketAmount:          500,
+		MarketAmountRemaining: 0,
+		MarketID:              36,
+		Open:                  false,
+		OrderType:             "sell_limit",
+		Price:                 0.00000033,
+		Trades:                nil,
+		CloseReason:           "canceled",
+	}
 
 	got, err := testClient.GetOrder(context.Background(), 8806681)
 	if assert.NoError(t, err) {
@@ -379,48 +357,42 @@ func TestQtradeClient_GetTrades(t *testing.T) {
 	t1, _ := time.Parse(time.RFC3339, "2019-10-14T17:42:42.874812Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-10-19T11:10:19.387393Z")
 
-	want := &GetTradesResult{
-		Data: struct {
-			Trades []Trade `json:"trades"`
-		}{
-			Trades: []Trade{
-				{
-					BaseAmount:   0.00022751,
-					BaseFee:      0,
-					CreatedAt:    t1,
-					ID:           63286,
-					OrderID:      8141515,
-					MarketID:     36,
-					MarketAmount: 733.93113296,
-					Price:        0.00000031,
-					Taker:        false,
-					Side:         "sell",
-				},
-				{
-					BaseAmount:   0.000434,
-					BaseFee:      0.00000217,
-					CreatedAt:    t1,
-					ID:           63287,
-					OrderID:      8141515,
-					MarketID:     36,
-					MarketAmount: 1400,
-					Price:        0.00000031,
-					Taker:        true,
-					Side:         "sell",
-				},
-				{
-					BaseAmount:   0.000135,
-					BaseFee:      0,
-					CreatedAt:    t2,
-					ID:           64129,
-					OrderID:      8209249,
-					MarketID:     36,
-					MarketAmount: 500,
-					Price:        0.00000027,
-					Taker:        false,
-					Side:         "buy",
-				},
-			},
+	want := []Trade{
+		{
+			BaseAmount:   0.00022751,
+			BaseFee:      0,
+			CreatedAt:    t1,
+			ID:           63286,
+			OrderID:      8141515,
+			MarketID:     36,
+			MarketAmount: 733.93113296,
+			Price:        0.00000031,
+			Taker:        false,
+			Side:         "sell",
+		},
+		{
+			BaseAmount:   0.000434,
+			BaseFee:      0.00000217,
+			CreatedAt:    t1,
+			ID:           63287,
+			OrderID:      8141515,
+			MarketID:     36,
+			MarketAmount: 1400,
+			Price:        0.00000031,
+			Taker:        true,
+			Side:         "sell",
+		},
+		{
+			BaseAmount:   0.000135,
+			BaseFee:      0,
+			CreatedAt:    t2,
+			ID:           64129,
+			OrderID:      8209249,
+			MarketID:     36,
+			MarketAmount: 500,
+			Price:        0.00000027,
+			Taker:        false,
+			Side:         "buy",
 		},
 	}
 
