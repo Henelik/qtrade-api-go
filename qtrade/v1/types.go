@@ -113,7 +113,7 @@ type GetTradesResult struct {
 }
 
 type WithdrawResult struct {
-	Data *WithdrawData `json:"data"`
+	Data WithdrawData `json:"data"`
 }
 
 type WithdrawData struct {
