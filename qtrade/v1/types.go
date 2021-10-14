@@ -121,3 +121,22 @@ type WithdrawData struct {
 	ID     int    `json:"id"`
 	Result string `json:"result"`
 }
+
+type GetWithdrawDetailsResult struct {
+	Data struct {
+		Withdraw WithdrawDetails `json:"withdraw"`
+	} `json:"data"`
+}
+
+type WithdrawDetails struct {
+	Address         string      `json:"address"`
+	Amount          string      `json:"amount"`
+	CancelRequested bool        `json:"cancel_requested"`
+	CreatedAt       time.Time   `json:"created_at"`
+	Currency        string      `json:"currency"`
+	ID              int         `json:"id"`
+	NetworkData     interface{} `json:"network_data"`
+	RelayStatus     string      `json:"relay_status"`
+	Status          string      `json:"status"`
+	UserID          int         `json:"user_id"`
+}

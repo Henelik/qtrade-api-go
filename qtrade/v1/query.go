@@ -173,3 +173,21 @@ func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount
 
 	return &result.Data, client.doRequest(req, result, nil)
 }
+
+func (client *QtradeClient) GetWithdrawDetails(ctx context.Context, id int) (*WithdrawDetails, error) {
+	result := new(GetWithdrawDetailsResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/user/withdraw/"+strconv.Itoa(id),
+		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get withdraw details")
+	}
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get withdraw details")
+	}
+
+	return &result.Data.Withdraw, nil
+}
