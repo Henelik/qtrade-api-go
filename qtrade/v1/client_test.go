@@ -21,6 +21,7 @@ const (
 	withdrawTestData        = `{"data": {"code": "initiated","id": 3,"result": "Withdraw initiated. Please allow 3-5 minutes for our system to process."}}`
 	withdrawDetailsTestData = `{"data": {"withdraw": {"address": "mw67t7AE88SBSRWYw1is3JaFbtXVygwpmB","amount": "1","cancel_requested": false,"created_at": "2019-02-01T06:06:16.218062Z","currency": "LTC","id": 2,"network_data": {},"relay_status": "","status": "needs_create","user_id": 0}}}`
 	withdrawHistoryTestData = `{"data": {"withdraws": [{"address": "mw67t7AE88SBSRWYw1is3JaFbtXVygwpmB","amount": "1","cancel_requested": false,"created_at": "2019-02-01T06:06:16.218062Z","currency": "LTC","id": 2,"network_data": {},"relay_status": "","status": "needs_create","user_id": 0}]}}`
+	depositDetailsTestData  = `{"data": {"deposit": [{"address": "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE","amount": "1","created_at": "2019-03-02T04:05:51.090427Z","currency": "BTC","id": "ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4","network_data": {},"relay_status": "","status": "credited"}]}}`
 )
 
 var testClient, _ = NewQtradeClient(
@@ -504,4 +505,35 @@ func TestQtradeClient_GetWithdrawHistory(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/withdraws"])
+}
+
+func TestQtradeClient_GetDeposit(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/deposit/ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4",
+		httpmock.NewStringResponder(200, depositDetailsTestData))
+
+	wantTime, _ := time.Parse(time.RFC3339Nano, "2019-03-02T04:05:51.090427Z")
+
+	want := []DepositDetails{
+		{
+			Address:     "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE",
+			Amount:      "1",
+			CreatedAt:   wantTime,
+			Currency:    "BTC",
+			Id:          "ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4",
+			NetworkData: map[string]interface{}{},
+			RelayStatus: "",
+			Status:      "credited",
+		},
+	}
+
+	got, err := testClient.GetDeposit(context.Background(), "ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4")
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/deposit/ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4"])
 }

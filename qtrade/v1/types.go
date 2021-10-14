@@ -146,3 +146,20 @@ type GetWithdrawHistoryResult struct {
 		Withdraws []WithdrawDetails `json:"withdraws"`
 	} `json:"data"`
 }
+
+type GetDepositResult struct {
+	Data struct {
+		Deposit []DepositDetails `json:"deposit"`
+	} `json:"data"`
+}
+
+type DepositDetails struct {
+	Address     string      `json:"address"`
+	Amount      string      `json:"amount"`
+	CreatedAt   time.Time   `json:"created_at"`
+	Currency    string      `json:"currency"`
+	Id          string      `json:"id"`
+	NetworkData interface{} `json:"network_data"`
+	RelayStatus string      `json:"relay_status"`
+	Status      string      `json:"status"`
+}
