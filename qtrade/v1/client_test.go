@@ -24,6 +24,7 @@ const (
 	depositDetailsTestData  = `{"data": {"deposit": [{"address": "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE","amount": "1","created_at": "2019-03-02T04:05:51.090427Z","currency": "BTC","id": "ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4","network_data": {},"relay_status": "","status": "credited"}]}}`
 	depositHistoryTestData  = `{"data": {"deposits": [{"address": "1Kv3CKUigVPsxGCkkaoyLKrZHZ7WLq8jNK","amount": "0.25","created_at": "2019-01-08T21:15:18.775592Z","currency": "BTC","id": "1:855e291e4acd61c21fcbf1bc31aa2578fa8eb3b388d9e979077567a71b58f088","network_data": {"confirms": 2,"confirms_required": 2,"txid": "855e291e4acd61c21fcbf1bc31aa2578fa8eb3b388d9e979077567a71b58f088","vout": 1},"relay_status": "","status": "credited"}]}}`
 	depositAddressTestData  = `{"data": {"address": "mhBYubznoJxVEst6DNr6arZHK6UYVTsjqC","currency_status": "ok"}}`
+	transferTestData        = `{"data": {"transfers": [{"amount": "0.5","created_at": "2018-12-10T00:06:41.066665Z","currency": "BTC","id": 9,"reason_code": "referral_payout","reason_metadata": {"note": "January referral earnings"},"sender_email": "qtrade","sender_id": 218}]}}`
 )
 
 var testClient, _ = NewQtradeClient(
@@ -595,4 +596,37 @@ func TestQtradeClient_GetDepositAddress(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/deposit_address/LTC"])
+}
+
+func TestQtradeClient_GetTransfers(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/transfers",
+		httpmock.NewStringResponder(200, transferTestData))
+
+	wantTime, _ := time.Parse(time.RFC3339Nano, "2018-12-10T00:06:41.066665Z")
+
+	want := []Transfer{
+		{
+			Amount:     "0.5",
+			CreatedAt:  wantTime,
+			Currency:   BTC,
+			ID:         9,
+			ReasonCode: "referral_payout",
+			ReasonMetadata: map[string]interface{}{
+				"note": "January referral earnings",
+			},
+			SenderEmail: "qtrade",
+			SenderID:    218,
+		},
+	}
+
+	got, err := testClient.GetTransfers(context.Background(), nil)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/transfers"])
 }

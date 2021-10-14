@@ -178,3 +178,20 @@ type DepositAddressData struct {
 	Address        string         `json:"address"`
 	CurrencyStatus CurrencyStatus `json:"currency_status"`
 }
+
+type GetTransfersResult struct {
+	Data struct {
+		Transfers []Transfer `json:"transfers"`
+	} `json:"data"`
+}
+
+type Transfer struct {
+	Amount         string                 `json:"amount"`
+	CreatedAt      time.Time              `json:"created_at"`
+	Currency       Currency               `json:"currency"`
+	ID             int                    `json:"id"`
+	ReasonCode     string                 `json:"reason_code"`
+	ReasonMetadata map[string]interface{} `json:"reason_metadata"`
+	SenderEmail    string                 `json:"sender_email"`
+	SenderID       int                    `json:"sender_id"`
+}

@@ -258,3 +258,21 @@ func (client *QtradeClient) GetDepositAddress(ctx context.Context, currency Curr
 
 	return &result.Data, nil
 }
+
+func (client *QtradeClient) GetTransfers(ctx context.Context, params map[string]string) ([]Transfer, error) {
+	result := new(GetTransfersResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/user/transfers",
+		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get transfers")
+	}
+
+	err = client.doRequest(req, result, params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get transfers")
+	}
+
+	return result.Data.Transfers, nil
+}
