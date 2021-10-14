@@ -13,13 +13,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-type QtradeClient struct {
+type Client struct {
 	Client *http.Client
 	Config Configuration
 	Auth   Auth
 }
 
-func NewQtradeClient(config Configuration) (*QtradeClient, error) {
+func NewQtradeClient(config Configuration) (*Client, error) {
 	client := &http.Client{
 		Timeout: config.Timeout,
 	}
@@ -29,14 +29,14 @@ func NewQtradeClient(config Configuration) (*QtradeClient, error) {
 		return nil, err
 	}
 
-	return &QtradeClient{
+	return &Client{
 		Client: client,
 		Config: config,
 		Auth:   *auth,
 	}, nil
 }
 
-func (client *QtradeClient) generateHMAC(req *http.Request) (string, string, error) {
+func (client *Client) generateHMAC(req *http.Request) (string, string, error) {
 	timestamp := fmt.Sprintf("%v", time.Now().Unix())
 
 	reqDetails := bytes.NewBufferString(req.Method)
@@ -69,7 +69,7 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, string, err
 	return hmac, timestamp, nil
 }
 
-func (client *QtradeClient) doRequest(req *http.Request, result interface{}, queryParams map[string]string) error {
+func (client *Client) doRequest(req *http.Request, result interface{}, queryParams map[string]string) error {
 	q := req.URL.Query()
 
 	for k, v := range queryParams {

@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-func (client *QtradeClient) GetUserInfo(ctx context.Context) (*UserInfo, error) {
+func (client *Client) GetUserInfo(ctx context.Context) (*UserInfo, error) {
 	result := new(GetUserInfoResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", client.Config.Endpoint+"/v1/user/me", nil)
@@ -26,7 +26,7 @@ func (client *QtradeClient) GetUserInfo(ctx context.Context) (*UserInfo, error) 
 	return &result.Data.User, nil
 }
 
-func (client *QtradeClient) GetBalances(ctx context.Context, params map[string]string) ([]Balance, error) {
+func (client *Client) GetBalances(ctx context.Context, params map[string]string) ([]Balance, error) {
 	result := new(GetBalancesResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", client.Config.Endpoint+"/v1/user/balances", nil)
@@ -42,7 +42,7 @@ func (client *QtradeClient) GetBalances(ctx context.Context, params map[string]s
 	return result.Data.Balances, nil
 }
 
-func (client *QtradeClient) GetUserMarket(ctx context.Context, market string, params map[string]string) (*UserMarketData, error) {
+func (client *Client) GetUserMarket(ctx context.Context, market string, params map[string]string) (*UserMarketData, error) {
 	result := new(GetUserMarketResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
@@ -60,7 +60,7 @@ func (client *QtradeClient) GetUserMarket(ctx context.Context, market string, pa
 	return &result.Data, nil
 }
 
-func (client *QtradeClient) GetOrders(ctx context.Context, params map[string]string) ([]Order, error) {
+func (client *Client) GetOrders(ctx context.Context, params map[string]string) ([]Order, error) {
 	result := new(GetOrdersResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", client.Config.Endpoint+"/v1/user/orders", nil)
@@ -76,7 +76,7 @@ func (client *QtradeClient) GetOrders(ctx context.Context, params map[string]str
 	return result.Data.Orders, nil
 }
 
-func (client *QtradeClient) GetOrder(ctx context.Context, id int) (*Order, error) {
+func (client *Client) GetOrder(ctx context.Context, id int) (*Order, error) {
 	result := new(GetOrderResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
@@ -94,7 +94,7 @@ func (client *QtradeClient) GetOrder(ctx context.Context, id int) (*Order, error
 	return &result.Data.Order, nil
 }
 
-func (client *QtradeClient) GetTrades(ctx context.Context, params map[string]string) ([]Trade, error) {
+func (client *Client) GetTrades(ctx context.Context, params map[string]string) ([]Trade, error) {
 	result := new(GetTradesResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", client.Config.Endpoint+"/v1/user/trades", nil)
@@ -110,7 +110,7 @@ func (client *QtradeClient) GetTrades(ctx context.Context, params map[string]str
 	return result.Data.Trades, nil
 }
 
-func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
+func (client *Client) CancelOrder(ctx context.Context, id int) error {
 	body := map[string]interface{}{
 		"id": id,
 	}
@@ -144,7 +144,7 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 	return checkForError(resp)
 }
 
-func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount float64, currency Currency) (*WithdrawData, error) {
+func (client *Client) Withdraw(ctx context.Context, address string, amount float64, currency Currency) (*WithdrawData, error) {
 	body := map[string]interface{}{
 		"address":  address,
 		"amount":   strconv.FormatFloat(amount, 'f', CurrencyDecimalPlaces[currency], 64),
@@ -169,7 +169,7 @@ func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount
 	return &result.Data, client.doRequest(req, result, nil)
 }
 
-func (client *QtradeClient) GetWithdrawDetails(ctx context.Context, id int) (*WithdrawDetails, error) {
+func (client *Client) GetWithdrawDetails(ctx context.Context, id int) (*WithdrawDetails, error) {
 	result := new(GetWithdrawDetailsResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
@@ -187,7 +187,7 @@ func (client *QtradeClient) GetWithdrawDetails(ctx context.Context, id int) (*Wi
 	return &result.Data.Withdraw, nil
 }
 
-func (client *QtradeClient) GetWithdrawHistory(ctx context.Context, params map[string]string) ([]WithdrawDetails, error) {
+func (client *Client) GetWithdrawHistory(ctx context.Context, params map[string]string) ([]WithdrawDetails, error) {
 	result := new(GetWithdrawHistoryResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
@@ -205,7 +205,7 @@ func (client *QtradeClient) GetWithdrawHistory(ctx context.Context, params map[s
 	return result.Data.Withdraws, nil
 }
 
-func (client *QtradeClient) GetDeposit(ctx context.Context, id string) ([]DepositDetails, error) {
+func (client *Client) GetDeposit(ctx context.Context, id string) ([]DepositDetails, error) {
 	result := new(GetDepositResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
@@ -223,7 +223,7 @@ func (client *QtradeClient) GetDeposit(ctx context.Context, id string) ([]Deposi
 	return result.Data.Deposit, nil
 }
 
-func (client *QtradeClient) GetDepositHistory(ctx context.Context, params map[string]string) ([]DepositDetails, error) {
+func (client *Client) GetDepositHistory(ctx context.Context, params map[string]string) ([]DepositDetails, error) {
 	result := new(GetDepositHistoryResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
@@ -241,7 +241,7 @@ func (client *QtradeClient) GetDepositHistory(ctx context.Context, params map[st
 	return result.Data.Deposits, nil
 }
 
-func (client *QtradeClient) GetDepositAddress(ctx context.Context, currency Currency) (*DepositAddressData, error) {
+func (client *Client) GetDepositAddress(ctx context.Context, currency Currency) (*DepositAddressData, error) {
 	result := new(GetDepositAddressResult)
 
 	req, err := http.NewRequestWithContext(ctx, "POST",
@@ -259,7 +259,7 @@ func (client *QtradeClient) GetDepositAddress(ctx context.Context, currency Curr
 	return &result.Data, nil
 }
 
-func (client *QtradeClient) GetTransfers(ctx context.Context, params map[string]string) ([]Transfer, error) {
+func (client *Client) GetTransfers(ctx context.Context, params map[string]string) ([]Transfer, error) {
 	result := new(GetTransfersResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
