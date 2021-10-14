@@ -175,6 +175,6 @@ type GetDepositAddressResult struct {
 }
 
 type DepositAddressData struct {
-	Address        string `json:"address"`
-	CurrencyStatus string `json:"currency_status"`
+	Address        string         `json:"address"`
+	CurrencyStatus CurrencyStatus `json:"currency_status"`
 }

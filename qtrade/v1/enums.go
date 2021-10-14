@@ -58,3 +58,13 @@ const (
 	HLS   Currency = "HLS"
 	PFCT  Currency = "pFCT"
 )
+
+type CurrencyStatus string
+
+const (
+	CurrencyStatusOK       CurrencyStatus = "ok"
+	CurrencyStatusDegraded CurrencyStatus = "degraded"
+	CurrencyStatusDisabled CurrencyStatus = "disabled"
+	CurrencyStatusOffline  CurrencyStatus = "offline"
+	CurrencyStatusDelisted CurrencyStatus = "delisted"
+)
