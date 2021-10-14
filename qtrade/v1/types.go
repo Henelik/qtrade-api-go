@@ -169,3 +169,12 @@ type DepositDetails struct {
 	RelayStatus string                 `json:"relay_status"`
 	Status      string                 `json:"status"`
 }
+
+type GetDepositAddressResult struct {
+	Data DepositAddressData `json:"data"`
+}
+
+type DepositAddressData struct {
+	Address        string `json:"address"`
+	CurrencyStatus string `json:"currency_status"`
+}

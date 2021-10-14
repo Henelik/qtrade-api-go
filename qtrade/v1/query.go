@@ -245,3 +245,21 @@ func (client *QtradeClient) GetDepositHistory(ctx context.Context, params map[st
 
 	return result.Data.Deposits, nil
 }
+
+func (client *QtradeClient) GetDepositAddress(ctx context.Context, currency string) (*DepositAddressData, error) {
+	result := new(GetDepositAddressResult)
+
+	req, err := http.NewRequestWithContext(ctx, "POST",
+		client.Config.Endpoint+"/v1/user/deposit_address/"+currency,
+		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get deposit address")
+	}
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get deposit address")
+	}
+
+	return &result.Data, nil
+}

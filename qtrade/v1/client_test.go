@@ -23,6 +23,7 @@ const (
 	withdrawHistoryTestData = `{"data": {"withdraws": [{"address": "mw67t7AE88SBSRWYw1is3JaFbtXVygwpmB","amount": "1","cancel_requested": false,"created_at": "2019-02-01T06:06:16.218062Z","currency": "LTC","id": 2,"network_data": {},"relay_status": "","status": "needs_create","user_id": 0}]}}`
 	depositDetailsTestData  = `{"data": {"deposit": [{"address": "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE","amount": "1","created_at": "2019-03-02T04:05:51.090427Z","currency": "BTC","id": "ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4","network_data": {},"relay_status": "","status": "credited"}]}}`
 	depositHistoryTestData  = `{"data": {"deposits": [{"address": "1Kv3CKUigVPsxGCkkaoyLKrZHZ7WLq8jNK","amount": "0.25","created_at": "2019-01-08T21:15:18.775592Z","currency": "BTC","id": "1:855e291e4acd61c21fcbf1bc31aa2578fa8eb3b388d9e979077567a71b58f088","network_data": {"confirms": 2,"confirms_required": 2,"txid": "855e291e4acd61c21fcbf1bc31aa2578fa8eb3b388d9e979077567a71b58f088","vout": 1},"relay_status": "","status": "credited"}]}}`
+	depositAddressTestData  = `{"data": {"address": "mhBYubznoJxVEst6DNr6arZHK6UYVTsjqC","currency_status": "ok"}}`
 )
 
 var testClient, _ = NewQtradeClient(
@@ -573,4 +574,25 @@ func TestQtradeClient_GetDepositHistory(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/deposits"])
+}
+
+func TestQtradeClient_GetDepositAddress(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("POST", "http://localhost/v1/user/deposit_address/LTC",
+		httpmock.NewStringResponder(200, depositAddressTestData))
+
+	want := &DepositAddressData{
+		CurrencyStatus: "ok",
+		Address:        "mhBYubznoJxVEst6DNr6arZHK6UYVTsjqC",
+	}
+
+	got, err := testClient.GetDepositAddress(context.Background(), "LTC")
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/deposit_address/LTC"])
 }
