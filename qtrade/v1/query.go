@@ -227,3 +227,21 @@ func (client *QtradeClient) GetDeposit(ctx context.Context, id string) ([]Deposi
 
 	return result.Data.Deposit, nil
 }
+
+func (client *QtradeClient) GetDepositHistory(ctx context.Context, params map[string]string) ([]DepositDetails, error) {
+	result := new(GetDepositHistoryResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/user/deposits",
+		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get deposit history")
+	}
+
+	err = client.doRequest(req, result, params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get deposit history")
+	}
+
+	return result.Data.Deposits, nil
+}

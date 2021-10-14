@@ -129,16 +129,16 @@ type GetWithdrawDetailsResult struct {
 }
 
 type WithdrawDetails struct {
-	Address         string      `json:"address"`
-	Amount          string      `json:"amount"`
-	CancelRequested bool        `json:"cancel_requested"`
-	CreatedAt       time.Time   `json:"created_at"`
-	Currency        string      `json:"currency"`
-	ID              int         `json:"id"`
-	NetworkData     interface{} `json:"network_data"`
-	RelayStatus     string      `json:"relay_status"`
-	Status          string      `json:"status"`
-	UserID          int         `json:"user_id"`
+	Address         string                 `json:"address"`
+	Amount          string                 `json:"amount"`
+	CancelRequested bool                   `json:"cancel_requested"`
+	CreatedAt       time.Time              `json:"created_at"`
+	Currency        string                 `json:"currency"`
+	ID              int                    `json:"id"`
+	NetworkData     map[string]interface{} `json:"network_data,omitempty"`
+	RelayStatus     string                 `json:"relay_status"`
+	Status          string                 `json:"status"`
+	UserID          int                    `json:"user_id"`
 }
 
 type GetWithdrawHistoryResult struct {
@@ -153,13 +153,19 @@ type GetDepositResult struct {
 	} `json:"data"`
 }
 
+type GetDepositHistoryResult struct {
+	Data struct {
+		Deposits []DepositDetails `json:"deposits"`
+	} `json:"data"`
+}
+
 type DepositDetails struct {
-	Address     string      `json:"address"`
-	Amount      string      `json:"amount"`
-	CreatedAt   time.Time   `json:"created_at"`
-	Currency    string      `json:"currency"`
-	Id          string      `json:"id"`
-	NetworkData interface{} `json:"network_data"`
-	RelayStatus string      `json:"relay_status"`
-	Status      string      `json:"status"`
+	Address     string                 `json:"address"`
+	Amount      string                 `json:"amount"`
+	CreatedAt   time.Time              `json:"created_at"`
+	Currency    string                 `json:"currency"`
+	ID          string                 `json:"id"`
+	NetworkData map[string]interface{} `json:"network_data,omitempty"`
+	RelayStatus string                 `json:"relay_status"`
+	Status      string                 `json:"status"`
 }
