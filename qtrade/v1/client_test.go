@@ -13,7 +13,7 @@ import (
 
 const (
 	userTestData            = `{"data": {"user": {"can_login": true,"can_trade": true,"can_withdraw": true,"email": "hugh@test.com","email_addresses": [{"address": "hugh@test.com","created_at": "2019-10-14T14:41:43.506827Z","id": 10000,"is_primary": true,"verified": true},{"address": "jass@test.com","created_at": "2019-11-14T18:51:23.816532Z","id": 10001,"is_primary": false,"verified": true}],"fname": "Hugh","id": 1000000,"lname": "Jass","referral_code": "6W56QFFVIIJ2","tfa_enabled": true,"verification": "none","verified_email": true,"withdraw_limit": 0}}}`
-	balancesTestData        = `{"data": {"balances": [{"balance": "100000000","currency": "BCH"},{"balance": "99992435.78253015","currency": "LTC"},{"balance": "99927153.76074182","currency": "BTC"}]}}`
+	balancesTestData        = `{"data": {"balances": [{"balance": "100000000","currency": "DOGE"},{"balance": "99992435.78253015","currency": "LTC"},{"balance": "99927153.76074182","currency": "BTC"}]}}`
 	userMarketTestData      = `{"data": {"base_balance": "99927153.76074182","closed_orders": [{"base_amount": "0.09102782","created_at": "2018-04-06T17:59:36.366493Z","id": 13252,"market_amount": "4.99896025","market_amount_remaining": "0","market_id": 1,"open": false,"order_type": "buy_limit","price": "9.90682437","trades": [{"base_amount": "49.37394186","base_fee": "0.12343485","created_at": "2018-04-06T17:59:36.366493Z","id": 10289,"market_amount": "4.99298105","price": "9.88866999","taker": true},{"base_amount": "0.05907856","base_fee": "0.00014769","created_at": "2018-04-06T17:59:36.366493Z","id": 10288,"market_amount": "0.0059792","price": "9.88068047","taker": true}]}],"market_balance": "99992435.78253015","open_orders": [{"base_amount": "49.45063516","created_at": "2018-04-06T17:59:35.867526Z","id": 13249,"market_amount": "5.0007505","market_amount_remaining": "5.0007505","market_id": 1,"open": true,"order_type": "buy_limit","price": "9.86398279","trades": null},{"created_at": "2018-04-06T17:59:27.347006Z","id": 13192,"market_amount": "5.00245975","market_amount_remaining": "0.0173805","market_id": 1,"open": true,"order_type": "sell_limit","price": "9.90428849","trades": [{"base_amount": "49.37366303","base_fee": "0.12343415","created_at": "2018-04-06T17:59:27.531716Z","id": 10241,"market_amount": "4.98507925","price": "9.90428849","taker": false}]}]}}`
 	ordersTestData          = `{"data": {"orders": [{"base_amount": "0.09102782","created_at": "2018-04-06T17:59:36.366493Z","id": 13252,"market_amount": "4.99896025","market_amount_remaining": "0","market_id": 1,"open": false,"order_type": "buy_limit","price": "9.90682437","trades": [{"base_amount": "49.37394186","base_fee": "0.12343485","created_at": "2018-04-06T17:59:36.366493Z","id": 10289,"market_amount": "4.99298105","price": "9.88866999","taker": true},{"base_amount": "0.05907856","base_fee": "0.00014769","created_at": "2018-04-06T17:59:36.366493Z","id": 10288,"market_amount": "0.0059792","price": "9.88068047","taker": true}]},{"base_amount": "49.33046306","created_at": "2018-04-06T17:59:12.941034Z","id": 13099,"market_amount": "4.9950993","market_amount_remaining": "4.9950993","market_id": 1,"open": true,"order_type": "buy_limit","price": "9.85114439","trades": null}]}}`
 	orderTestData           = `{"data": {"order": {"base_amount": "0","close_reason": "canceled","created_at": "2018-11-08T00:15:57.258122Z","id": 8806681,"market_amount": "500","market_amount_remaining": "0","market_id": 36,"open": false,"order_type": "sell_limit","price": "0.00000033","trades": null}}}`
@@ -138,15 +138,15 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 
 	want := []Balance{
 		{
-			Currency: "BCH",
+			Currency: DOGE,
 			Balance:  "100000000",
 		},
 		{
-			Currency: "LTC",
+			Currency: LTC,
 			Balance:  "99992435.78253015",
 		},
 		{
-			Currency: "BTC",
+			Currency: BTC,
 			Balance:  "99927153.76074182",
 		},
 	}
@@ -437,7 +437,7 @@ func TestQtradeClient_Withdraw(t *testing.T) {
 		Result: "Withdraw initiated. Please allow 3-5 minutes for our system to process.",
 	}
 
-	got, err := testClient.Withdraw(context.Background(), "abcd", 20, "BTC")
+	got, err := testClient.Withdraw(context.Background(), "abcd", 20, BTC)
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}
@@ -589,7 +589,7 @@ func TestQtradeClient_GetDepositAddress(t *testing.T) {
 		Address:        "mhBYubznoJxVEst6DNr6arZHK6UYVTsjqC",
 	}
 
-	got, err := testClient.GetDepositAddress(context.Background(), "LTC")
+	got, err := testClient.GetDepositAddress(context.Background(), LTC)
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}

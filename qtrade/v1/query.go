@@ -144,15 +144,10 @@ func (client *QtradeClient) CancelOrder(ctx context.Context, id int) error {
 	return checkForError(resp)
 }
 
-func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount float64, currency string) (*WithdrawData, error) {
-	places, err := GetPlaces(currency)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to withdraw")
-	}
-
+func (client *QtradeClient) Withdraw(ctx context.Context, address string, amount float64, currency Currency) (*WithdrawData, error) {
 	body := map[string]interface{}{
 		"address":  address,
-		"amount":   strconv.FormatFloat(amount, 'f', places, 64),
+		"amount":   strconv.FormatFloat(amount, 'f', CurrencyDecimalPlaces[currency], 64),
 		"currency": currency,
 	}
 
@@ -246,11 +241,11 @@ func (client *QtradeClient) GetDepositHistory(ctx context.Context, params map[st
 	return result.Data.Deposits, nil
 }
 
-func (client *QtradeClient) GetDepositAddress(ctx context.Context, currency string) (*DepositAddressData, error) {
+func (client *QtradeClient) GetDepositAddress(ctx context.Context, currency Currency) (*DepositAddressData, error) {
 	result := new(GetDepositAddressResult)
 
 	req, err := http.NewRequestWithContext(ctx, "POST",
-		client.Config.Endpoint+"/v1/user/deposit_address/"+currency,
+		client.Config.Endpoint+"/v1/user/deposit_address/"+string(currency),
 		nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get deposit address")

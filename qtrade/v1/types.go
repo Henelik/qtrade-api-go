@@ -29,8 +29,8 @@ type EmailAddress struct {
 }
 
 type Balance struct {
-	Currency string `json:"currency"`
-	Balance  string `json:"balance"`
+	Currency Currency `json:"currency"`
+	Balance  string   `json:"balance"`
 }
 
 type Order struct {
@@ -133,7 +133,7 @@ type WithdrawDetails struct {
 	Amount          string                 `json:"amount"`
 	CancelRequested bool                   `json:"cancel_requested"`
 	CreatedAt       time.Time              `json:"created_at"`
-	Currency        string                 `json:"currency"`
+	Currency        Currency               `json:"currency"`
 	ID              int                    `json:"id"`
 	NetworkData     map[string]interface{} `json:"network_data,omitempty"`
 	RelayStatus     string                 `json:"relay_status"`
@@ -163,7 +163,7 @@ type DepositDetails struct {
 	Address     string                 `json:"address"`
 	Amount      string                 `json:"amount"`
 	CreatedAt   time.Time              `json:"created_at"`
-	Currency    string                 `json:"currency"`
+	Currency    Currency               `json:"currency"`
 	ID          string                 `json:"id"`
 	NetworkData map[string]interface{} `json:"network_data,omitempty"`
 	RelayStatus string                 `json:"relay_status"`
