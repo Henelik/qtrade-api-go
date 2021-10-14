@@ -70,13 +70,10 @@ func (client *QtradeClient) generateHMAC(req *http.Request) (string, string, err
 }
 
 func (client *QtradeClient) doRequest(req *http.Request, result interface{}, queryParams map[string]string) error {
-	err := req.ParseForm()
-	if err != nil {
-		return errors.Wrap(err, "could not parse request form")
-	}
+	q := req.URL.Query()
 
 	for k, v := range queryParams {
-		req.Form.Set(k, v)
+		q.Add(k, v)
 	}
 
 	auth, timestamp, err := client.generateHMAC(req)
