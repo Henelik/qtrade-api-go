@@ -20,6 +20,7 @@ const (
 	tradesTestData          = `{"data": {"trades": [{"base_amount": "0.00022751","base_fee": "0","created_at": "2019-10-14T17:42:42.874812Z","id": 63286,"market_amount": "733.93113296","market_id": 36,"order_id": 8141515,"price": "0.00000031","side": "sell","taker": false},{"base_amount": "0.000434","base_fee": "0.00000217","created_at": "2019-10-14T17:42:42.874812Z","id": 63287,"market_amount": "1400","market_id": 36,"order_id": 8141515,"price": "0.00000031","side": "sell","taker": true},{"base_amount": "0.000135","base_fee": "0","created_at": "2019-10-19T11:10:19.387393Z","id": 64129,"market_amount": "500","market_id": 36,"order_id": 8209249,"price": "0.00000027","side": "buy","taker": false}]}}`
 	withdrawTestData        = `{"data": {"code": "initiated","id": 3,"result": "Withdraw initiated. Please allow 3-5 minutes for our system to process."}}`
 	withdrawDetailsTestData = `{"data": {"withdraw": {"address": "mw67t7AE88SBSRWYw1is3JaFbtXVygwpmB","amount": "1","cancel_requested": false,"created_at": "2019-02-01T06:06:16.218062Z","currency": "LTC","id": 2,"network_data": {},"relay_status": "","status": "needs_create","user_id": 0}}}`
+	withdrawHistoryTestData = `{"data": {"withdraws": [{"address": "mw67t7AE88SBSRWYw1is3JaFbtXVygwpmB","amount": "1","cancel_requested": false,"created_at": "2019-02-01T06:06:16.218062Z","currency": "LTC","id": 2,"network_data": {},"relay_status": "","status": "needs_create","user_id": 0}]}}`
 )
 
 var testClient, _ = NewQtradeClient(
@@ -470,4 +471,37 @@ func TestQtradeClient_GetWithdrawDetails(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/withdraw/2"])
+}
+
+func TestQtradeClient_GetWithdrawHistory(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/withdraws",
+		httpmock.NewStringResponder(200, withdrawHistoryTestData))
+
+	wantTime, _ := time.Parse(time.RFC3339Nano, "2019-02-01T06:06:16.218062Z")
+
+	want := []WithdrawDetails{
+		{
+			Address:         "mw67t7AE88SBSRWYw1is3JaFbtXVygwpmB",
+			Amount:          "1",
+			CancelRequested: false,
+			CreatedAt:       wantTime,
+			Currency:        "LTC",
+			ID:              2,
+			NetworkData:     map[string]interface{}{},
+			RelayStatus:     "",
+			Status:          "needs_create",
+			UserID:          0,
+		},
+	}
+
+	got, err := testClient.GetWithdrawHistory(context.Background(), nil)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/withdraws"])
 }

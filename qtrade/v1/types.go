@@ -140,3 +140,9 @@ type WithdrawDetails struct {
 	Status          string      `json:"status"`
 	UserID          int         `json:"user_id"`
 }
+
+type GetWithdrawHistoryResult struct {
+	Data struct {
+		Withdraws []WithdrawDetails `json:"withdraws"`
+	} `json:"data"`
+}

@@ -191,3 +191,21 @@ func (client *QtradeClient) GetWithdrawDetails(ctx context.Context, id int) (*Wi
 
 	return &result.Data.Withdraw, nil
 }
+
+func (client *QtradeClient) GetWithdrawHistory(ctx context.Context, params map[string]string) ([]WithdrawDetails, error) {
+	result := new(GetWithdrawHistoryResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/user/withdraws",
+		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get withdraw history")
+	}
+
+	err = client.doRequest(req, result, params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get withdraw history")
+	}
+
+	return result.Data.Withdraws, nil
+}
