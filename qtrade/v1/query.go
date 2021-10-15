@@ -42,11 +42,11 @@ func (client *Client) GetBalances(ctx context.Context, params map[string]string)
 	return result.Data.Balances, nil
 }
 
-func (client *Client) GetUserMarket(ctx context.Context, market string, params map[string]string) (*UserMarketData, error) {
+func (client *Client) GetUserMarket(ctx context.Context, market Market, params map[string]string) (*UserMarketData, error) {
 	result := new(GetUserMarketResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET",
-		fmt.Sprintf("%s/v1/user/market/%s", client.Config.Endpoint, market),
+		fmt.Sprintf("%s/v1/user/market/%s", client.Config.Endpoint, market.String()),
 		nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user market view")
@@ -275,4 +275,58 @@ func (client *Client) GetTransfers(ctx context.Context, params map[string]string
 	}
 
 	return result.Data.Transfers, nil
+}
+
+func (client *Client) CreateSellLimit(ctx context.Context, amount float64, market Market, price float64) (*Order, error) {
+	result := new(CreateOrderResult)
+
+	body := map[string]interface{}{
+		"amount":    strconv.FormatFloat(amount, 'f', CurrencyDecimalPlaces[market.MarketCurrency()], 64),
+		"market_id": market,
+		"price":     strconv.FormatFloat(price, 'f', CurrencyDecimalPlaces[market.BaseCurrency()], 64),
+	}
+
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create sell order")
+	}
+
+	req, err := http.NewRequestWithContext(ctx,
+		"POST",
+		client.Config.Endpoint+"/v1/user/sell_limit",
+		bytes.NewReader(bodyBytes))
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create sell order")
+	}
+
+	return &result.Data.Order, nil
+}
+
+func (client *Client) CreateBuyLimit(ctx context.Context, amount float64, market Market, price float64) (*Order, error) {
+	result := new(CreateOrderResult)
+
+	body := map[string]interface{}{
+		"amount":    strconv.FormatFloat(amount, 'f', CurrencyDecimalPlaces[market.MarketCurrency()], 64),
+		"market_id": market,
+		"price":     strconv.FormatFloat(price, 'f', CurrencyDecimalPlaces[market.BaseCurrency()], 64),
+	}
+
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create buy order")
+	}
+
+	req, err := http.NewRequestWithContext(ctx,
+		"POST",
+		client.Config.Endpoint+"/v1/user/buy_limit",
+		bytes.NewReader(bodyBytes))
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create buy order")
+	}
+
+	return &result.Data.Order, nil
 }

@@ -25,6 +25,8 @@ const (
 	depositHistoryTestData  = `{"data": {"deposits": [{"address": "1Kv3CKUigVPsxGCkkaoyLKrZHZ7WLq8jNK","amount": "0.25","created_at": "2019-01-08T21:15:18.775592Z","currency": "BTC","id": "1:855e291e4acd61c21fcbf1bc31aa2578fa8eb3b388d9e979077567a71b58f088","network_data": {"confirms": 2,"confirms_required": 2,"txid": "855e291e4acd61c21fcbf1bc31aa2578fa8eb3b388d9e979077567a71b58f088","vout": 1},"relay_status": "","status": "credited"}]}}`
 	depositAddressTestData  = `{"data": {"address": "mhBYubznoJxVEst6DNr6arZHK6UYVTsjqC","currency_status": "ok"}}`
 	transferTestData        = `{"data": {"transfers": [{"amount": "0.5","created_at": "2018-12-10T00:06:41.066665Z","currency": "BTC","id": 9,"reason_code": "referral_payout","reason_metadata": {"note": "January referral earnings"},"sender_email": "qtrade","sender_id": 218}]}}`
+	sellLimitData           = `{"data": {"order": {"created_at": "2018-04-06T20:46:52.899248Z","id": 13253,"market_amount": "1","market_amount_remaining": "0","market_id": 1,"open": false,"order_type": "sell_limit","price": "0.01","trades": [{"base_amount": "0.27834267","base_fee": "0.00069585","created_at": "0001-01-01T00:00:00Z","id": 0,"market_amount": "0.02820645","price": "9.86805058","taker": true},{"base_amount": "9.58970687","base_fee": "0.02397426","created_at": "0001-01-01T00:00:00Z","id": 0,"market_amount": "0.97179355","price": "9.86804952","taker": true}]}}}`
+	buyLimitData            = `{"data": {"order": {"base_amount": "1.0025","created_at": "2018-04-06T20:47:11.966139Z","id": 13254,"market_amount": "10","market_amount_remaining": "10","market_id": 1,"open": true,"order_type": "buy_limit","price": "0.1","trades": []}}}`
 )
 
 var testClient, _ = NewQtradeClient(
@@ -182,7 +184,7 @@ func TestQtradeClient_GetUserMarket(t *testing.T) {
 				ID:                    13252,
 				MarketAmount:          4.99896025,
 				MarketAmountRemaining: 0,
-				MarketID:              1,
+				Market:                LTC_BTC,
 				Open:                  false,
 				OrderType:             "buy_limit",
 				Price:                 9.90682437,
@@ -216,7 +218,7 @@ func TestQtradeClient_GetUserMarket(t *testing.T) {
 				ID:                    13249,
 				MarketAmount:          5.0007505,
 				MarketAmountRemaining: 5.0007505,
-				MarketID:              1,
+				Market:                LTC_BTC,
 				Open:                  true,
 				OrderType:             "buy_limit",
 				Price:                 9.86398279,
@@ -228,7 +230,7 @@ func TestQtradeClient_GetUserMarket(t *testing.T) {
 				ID:                    13192,
 				MarketAmount:          5.00245975,
 				MarketAmountRemaining: 0.0173805,
-				MarketID:              1,
+				Market:                LTC_BTC,
 				Open:                  true,
 				OrderType:             "sell_limit",
 				Price:                 9.90428849,
@@ -247,7 +249,7 @@ func TestQtradeClient_GetUserMarket(t *testing.T) {
 		},
 	}
 
-	got, err := testClient.GetUserMarket(context.Background(), "LTC_BTC", nil)
+	got, err := testClient.GetUserMarket(context.Background(), LTC_BTC, nil)
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}
@@ -273,7 +275,7 @@ func TestQtradeClient_GetOrders(t *testing.T) {
 			ID:                    13252,
 			MarketAmount:          4.99896025,
 			MarketAmountRemaining: 0,
-			MarketID:              1,
+			Market:                LTC_BTC,
 			Open:                  false,
 			OrderType:             "buy_limit",
 			Price:                 9.90682437,
@@ -304,7 +306,7 @@ func TestQtradeClient_GetOrders(t *testing.T) {
 			ID:                    13099,
 			MarketAmount:          4.9950993,
 			MarketAmountRemaining: 4.9950993,
-			MarketID:              1,
+			Market:                LTC_BTC,
 			Open:                  true,
 			OrderType:             "buy_limit",
 			Price:                 9.85114439,
@@ -336,7 +338,7 @@ func TestQtradeClient_GetOrder(t *testing.T) {
 		ID:                    8806681,
 		MarketAmount:          500,
 		MarketAmountRemaining: 0,
-		MarketID:              36,
+		Market:                DOGE_BTC,
 		Open:                  false,
 		OrderType:             "sell_limit",
 		Price:                 0.00000033,
@@ -370,7 +372,7 @@ func TestQtradeClient_GetTrades(t *testing.T) {
 			CreatedAt:    t1,
 			ID:           63286,
 			OrderID:      8141515,
-			MarketID:     36,
+			Market:       DOGE_BTC,
 			MarketAmount: 733.93113296,
 			Price:        0.00000031,
 			Taker:        false,
@@ -382,7 +384,7 @@ func TestQtradeClient_GetTrades(t *testing.T) {
 			CreatedAt:    t1,
 			ID:           63287,
 			OrderID:      8141515,
-			MarketID:     36,
+			Market:       DOGE_BTC,
 			MarketAmount: 1400,
 			Price:        0.00000031,
 			Taker:        true,
@@ -394,7 +396,7 @@ func TestQtradeClient_GetTrades(t *testing.T) {
 			CreatedAt:    t2,
 			ID:           64129,
 			OrderID:      8209249,
-			MarketID:     36,
+			Market:       DOGE_BTC,
 			MarketAmount: 500,
 			Price:        0.00000027,
 			Taker:        false,
@@ -629,4 +631,87 @@ func TestQtradeClient_GetTransfers(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/transfers"])
+}
+
+func TestQtradeClient_CreateSellLimit(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("POST", "http://localhost/v1/user/sell_limit",
+		httpmock.NewStringResponder(200, sellLimitData))
+
+	createdTime, _ := time.Parse(time.RFC3339Nano, "2018-04-06T20:46:52.899248Z")
+	tradeTime, _ := time.Parse(time.RFC3339Nano, "0001-01-01T00:00:00Z")
+
+	want := &Order{
+		CreatedAt:             createdTime,
+		ID:                    13253,
+		MarketAmount:          1,
+		MarketAmountRemaining: 0,
+		Market:                LTC_BTC,
+		Open:                  false,
+		OrderType:             SellLimit,
+		Price:                 0.01,
+		Trades: []Trade{
+			{
+				BaseAmount:   0.27834267,
+				BaseFee:      0.00069585,
+				CreatedAt:    tradeTime,
+				ID:           0,
+				OrderID:      0,
+				MarketAmount: 0.02820645,
+				Price:        9.86805058,
+				Taker:        true,
+			},
+			{
+				BaseAmount:   9.58970687,
+				BaseFee:      0.02397426,
+				CreatedAt:    tradeTime,
+				ID:           0,
+				OrderID:      0,
+				MarketAmount: 0.97179355,
+				Price:        9.86804952,
+				Taker:        true,
+			},
+		},
+	}
+
+	got, err := testClient.CreateSellLimit(context.Background(), 1, LTC_BTC, 0.01)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/sell_limit"])
+}
+
+func TestQtradeClient_CreateBuyLimit(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("POST", "http://localhost/v1/user/buy_limit",
+		httpmock.NewStringResponder(200, buyLimitData))
+
+	createdTime, _ := time.Parse(time.RFC3339Nano, "2018-04-06T20:47:11.966139Z")
+
+	want := &Order{
+		BaseAmount:            1.0025,
+		CreatedAt:             createdTime,
+		ID:                    13254,
+		MarketAmount:          10,
+		MarketAmountRemaining: 10,
+		Market:                LTC_BTC,
+		Open:                  true,
+		OrderType:             BuyLimit,
+		Price:                 0.1,
+		Trades:                []Trade{},
+	}
+
+	got, err := testClient.CreateBuyLimit(context.Background(), 10, LTC_BTC, 0.1)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/buy_limit"])
 }

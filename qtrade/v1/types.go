@@ -39,9 +39,9 @@ type Order struct {
 	ID                    int       `json:"id"`
 	MarketAmount          float64   `json:"market_amount,string"`
 	MarketAmountRemaining float64   `json:"market_amount_remaining,string"`
-	MarketID              int       `json:"market_id"`
+	Market                Market    `json:"market_id"`
 	Open                  bool      `json:"open"`
-	OrderType             string    `json:"order_type"`
+	OrderType             OrderType `json:"order_type"`
 	Price                 float64   `json:"price,string"`
 	Trades                []Trade   `json:"trades"`
 	CloseReason           string    `json:"close_reason,omitempty"`
@@ -53,7 +53,7 @@ type Trade struct {
 	CreatedAt    time.Time `json:"created_at"`
 	ID           int       `json:"id"`
 	OrderID      int       `json:"order_id,omitempty"`
-	MarketID     int       `json:"market_id,omitempty"`
+	Market       Market    `json:"market_id,omitempty"`
 	MarketAmount float64   `json:"market_amount,string"`
 	Price        float64   `json:"price,string"`
 	Taker        bool      `json:"taker"`
@@ -194,4 +194,10 @@ type Transfer struct {
 	ReasonMetadata map[string]interface{} `json:"reason_metadata"`
 	SenderEmail    string                 `json:"sender_email"`
 	SenderID       int                    `json:"sender_id"`
+}
+
+type CreateOrderResult struct {
+	Data struct {
+		Order Order `json:"order"`
+	} `json:"data"`
 }
