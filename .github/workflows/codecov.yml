@@ -5,6 +5,12 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+
+ignore:
+  - "qtrade/v1/enums.go"
+  - "qtrade/v1/configuration.go"
+  - "cmd/main.go"
+  - "qtrade/v1/types.go"
     
 jobs:
 
