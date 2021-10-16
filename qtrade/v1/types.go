@@ -1,3 +1,6 @@
+//go:build !test
+// +build !test
+
 package qtrade
 
 import "time"
@@ -65,7 +68,102 @@ type QtradeError struct {
 	Title string `json:"title"`
 }
 
-// API results
+type Transfer struct {
+	Amount         float64                `json:"amount,string"`
+	CreatedAt      time.Time              `json:"created_at"`
+	Currency       Currency               `json:"currency"`
+	ID             int                    `json:"id"`
+	ReasonCode     string                 `json:"reason_code"`
+	ReasonMetadata map[string]interface{} `json:"reason_metadata"`
+	SenderEmail    string                 `json:"sender_email"`
+	SenderID       int                    `json:"sender_id"`
+}
+
+type Ticker struct {
+	Ask             float64 `json:"ask,string"`
+	Bid             float64 `json:"bid,string"`
+	DayAvgPrice     float64 `json:"day_avg_price,string"`
+	DayChange       float64 `json:"day_change,string"`
+	DayHigh         float64 `json:"day_high,string"`
+	DayLow          float64 `json:"day_low,string"`
+	DayOpen         float64 `json:"day_open,string"`
+	DayVolumeBase   float64 `json:"day_volume_base,string"`
+	DayVolumeMarket float64 `json:"day_volume_market,string"`
+	Market          Market  `json:"id"`
+	IdHr            string  `json:"id_hr"`
+	Last            float64 `json:"last,string"`
+}
+
+type CurrencyData struct {
+	CanWithdraw bool             `json:"can_withdraw"`
+	Code        Currency         `json:"code"`
+	Config      CurrencyConfig   `json:"config"`
+	LongName    string           `json:"long_name"`
+	Metadata    CurrencyMetadata `json:"metadata"`
+	Precision   int              `json:"precision"`
+	Status      CurrencyStatus   `json:"status"`
+	Type        string           `json:"type"`
+}
+
+type CurrencyConfig struct {
+	AddressVersion                int     `json:"address_version,omitempty"`
+	DefaultSigner                 int     `json:"default_signer"`
+	Price                         float64 `json:"price"`
+	RequiredConfirmations         int     `json:"required_confirmations"`
+	RequiredGenerateConfirmations int     `json:"required_generate_confirmations,omitempty"`
+	SatoshiPerByte                int     `json:"satoshi_per_byte,omitempty"`
+	WifVersion                    int     `json:"wif_version,omitempty"`
+	WithdrawFee                   string  `json:"withdraw_fee"`
+	ExplorerAddressURL            string  `json:"explorerAddressURL,omitempty"`
+	ExplorerTransactionURL        string  `json:"explorerTransactionURL,omitempty"`
+	P2ShAddressVersion            int     `json:"p2sh_address_version,omitempty"`
+	DataMax                       int     `json:"data_max,omitempty"`
+	EnableAddressData             bool    `json:"enable_address_data,omitempty"`
+}
+
+type CurrencyMetadata struct {
+	DelistingDate   string        `json:"delisting_date,omitempty"`
+	WithdrawNotices []interface{} `json:"withdraw_notices,omitempty"`
+	DepositNotices  []interface{} `json:"deposit_notices,omitempty"`
+	Hidden          bool          `json:"hidden,omitempty"`
+}
+
+type MarketData struct {
+	BaseCurrency   Currency       `json:"base_currency"`
+	CanCancel      bool           `json:"can_cancel"`
+	CanTrade       bool           `json:"can_trade"`
+	CanView        bool           `json:"can_view"`
+	Market         Market         `json:"id"`
+	MakerFee       float64        `json:"maker_fee,string"`
+	MarketCurrency Currency       `json:"market_currency"`
+	Metadata       MarketMetadata `json:"metadata"`
+	TakerFee       float64        `json:"taker_fee,string"`
+}
+
+type MarketMetadata struct {
+	DelistingDate string         `json:"delisting_date,omitempty"`
+	MarketNotices []MarketNotice `json:"market_notices,omitempty"`
+	Labels        []interface{}  `json:"labels,omitempty"`
+}
+
+type MarketNotice struct {
+	Message string `json:"message"`
+	Type    string `json:"type"`
+}
+
+// Public endpoint results
+
+type GetCommonResult struct {
+	Data CommonData `json:"data"`
+}
+
+type CommonData struct {
+	Currencies []CurrencyData `json:"currencies"`
+	Markets    []MarketData   `json:"markets"`
+	Tickers    []Ticker       `json:"tickers"`
+}
+
+// Private endpoint results
 
 type ErrorResult struct {
 	Errors []QtradeError `json:"errors"`
@@ -183,17 +281,6 @@ type GetTransfersResult struct {
 	Data struct {
 		Transfers []Transfer `json:"transfers"`
 	} `json:"data"`
-}
-
-type Transfer struct {
-	Amount         string                 `json:"amount"`
-	CreatedAt      time.Time              `json:"created_at"`
-	Currency       Currency               `json:"currency"`
-	ID             int                    `json:"id"`
-	ReasonCode     string                 `json:"reason_code"`
-	ReasonMetadata map[string]interface{} `json:"reason_metadata"`
-	SenderEmail    string                 `json:"sender_email"`
-	SenderID       int                    `json:"sender_id"`
 }
 
 type CreateOrderResult struct {

@@ -557,7 +557,7 @@ func TestClient_GetTransfers(t *testing.T) {
 
 	want := []Transfer{
 		{
-			Amount:     "0.5",
+			Amount:     0.5,
 			CreatedAt:  wantTime,
 			Currency:   BTC,
 			ID:         9,
