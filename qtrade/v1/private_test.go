@@ -26,7 +26,7 @@ const (
 	buyLimitData            = `{"data": {"order": {"base_amount": "1.0025","created_at": "2018-04-06T20:47:11.966139Z","id": 13254,"market_amount": "10","market_amount_remaining": "10","market_id": 1,"open": true,"order_type": "buy_limit","price": "0.1","trades": []}}}`
 )
 
-func TestNewQtradeClient_GetUserInfo(t *testing.T) {
+func TestClient_GetUserInfo(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -76,7 +76,7 @@ func TestNewQtradeClient_GetUserInfo(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/me"])
 }
 
-func TestQtradeClient_GetBalances(t *testing.T) {
+func TestClient_GetBalances(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -107,7 +107,7 @@ func TestQtradeClient_GetBalances(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/balances"])
 }
 
-func TestQtradeClient_GetUserMarket(t *testing.T) {
+func TestClient_GetUserMarket(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -202,7 +202,7 @@ func TestQtradeClient_GetUserMarket(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/market/LTC_BTC"])
 }
 
-func TestQtradeClient_GetOrders(t *testing.T) {
+func TestClient_GetOrders(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -267,7 +267,7 @@ func TestQtradeClient_GetOrders(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/orders"])
 }
 
-func TestQtradeClient_GetOrder(t *testing.T) {
+func TestClient_GetOrder(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -299,7 +299,7 @@ func TestQtradeClient_GetOrder(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/order/8806681"])
 }
 
-func TestQtradeClient_GetTrades(t *testing.T) {
+func TestClient_GetTrades(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -357,7 +357,7 @@ func TestQtradeClient_GetTrades(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/trades"])
 }
 
-func TestQtradeClient_CancelOrder(t *testing.T) {
+func TestClient_CancelOrder(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -371,7 +371,7 @@ func TestQtradeClient_CancelOrder(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/cancel_order"])
 }
 
-func TestQtradeClient_Withdraw(t *testing.T) {
+func TestClient_Withdraw(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -393,7 +393,7 @@ func TestQtradeClient_Withdraw(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/withdraw"])
 }
 
-func TestQtradeClient_GetWithdrawDetails(t *testing.T) {
+func TestClient_GetWithdrawDetails(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -424,7 +424,7 @@ func TestQtradeClient_GetWithdrawDetails(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/withdraw/2"])
 }
 
-func TestQtradeClient_GetWithdrawHistory(t *testing.T) {
+func TestClient_GetWithdrawHistory(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -457,7 +457,7 @@ func TestQtradeClient_GetWithdrawHistory(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/withdraws"])
 }
 
-func TestQtradeClient_GetDeposit(t *testing.T) {
+func TestClient_GetDeposit(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -488,7 +488,7 @@ func TestQtradeClient_GetDeposit(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/deposit/ab5e1720944065ad64917929082191270896edc1b17d18e921aa5b1b26e18ab4"])
 }
 
-func TestQtradeClient_GetDepositHistory(t *testing.T) {
+func TestClient_GetDepositHistory(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -524,7 +524,7 @@ func TestQtradeClient_GetDepositHistory(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/deposits"])
 }
 
-func TestQtradeClient_GetDepositAddress(t *testing.T) {
+func TestClient_GetDepositAddress(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -545,7 +545,7 @@ func TestQtradeClient_GetDepositAddress(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/deposit_address/LTC"])
 }
 
-func TestQtradeClient_GetTransfers(t *testing.T) {
+func TestClient_GetTransfers(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -578,7 +578,7 @@ func TestQtradeClient_GetTransfers(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/transfers"])
 }
 
-func TestQtradeClient_CreateSellLimit(t *testing.T) {
+func TestClient_CreateSellLimit(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -630,7 +630,7 @@ func TestQtradeClient_CreateSellLimit(t *testing.T) {
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["POST http://localhost/v1/user/sell_limit"])
 }
 
-func TestQtradeClient_CreateBuyLimit(t *testing.T) {
+func TestClient_CreateBuyLimit(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
