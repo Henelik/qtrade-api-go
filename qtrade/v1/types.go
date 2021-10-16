@@ -167,6 +167,12 @@ type GetTickerResult struct {
 	Data Ticker `json:"data"`
 }
 
+type GetTickersResult struct {
+	Data struct {
+		Tickers []Ticker `json:"markets"`
+	} `json:"data"`
+}
+
 // Private endpoint results
 
 type ErrorResult struct {

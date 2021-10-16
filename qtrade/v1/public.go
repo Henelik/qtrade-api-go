@@ -35,3 +35,18 @@ func (client *Client) GetTicker(ctx context.Context, market Market) (*Ticker, er
 
 	return &result.Data, nil
 }
+
+func (client *Client) GetTickers(ctx context.Context) ([]Ticker, error) {
+	result := new(GetTickersResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/tickers",
+		nil)
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get tickers")
+	}
+
+	return result.Data.Tickers, nil
+}
