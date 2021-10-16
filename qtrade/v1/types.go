@@ -163,6 +163,10 @@ type CommonData struct {
 	Tickers    []Ticker       `json:"tickers"`
 }
 
+type GetTickerResult struct {
+	Data Ticker `json:"data"`
+}
+
 // Private endpoint results
 
 type ErrorResult struct {
