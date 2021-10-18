@@ -113,7 +113,7 @@ type CurrencyConfig struct {
 	RequiredGenerateConfirmations int     `json:"required_generate_confirmations,omitempty"`
 	SatoshiPerByte                int     `json:"satoshi_per_byte,omitempty"`
 	WifVersion                    int     `json:"wif_version,omitempty"`
-	WithdrawFee                   string  `json:"withdraw_fee"`
+	WithdrawFee                   float64 `json:"withdraw_fee,string"`
 	ExplorerAddressURL            string  `json:"explorerAddressURL,omitempty"`
 	ExplorerTransactionURL        string  `json:"explorerTransactionURL,omitempty"`
 	P2ShAddressVersion            int     `json:"p2sh_address_version,omitempty"`
@@ -170,6 +170,12 @@ type GetTickerResult struct {
 type GetTickersResult struct {
 	Data struct {
 		Tickers []Ticker `json:"markets"`
+	} `json:"data"`
+}
+
+type GetCurrencyResult struct {
+	Data struct {
+		Currency CurrencyData `json:"currency"`
 	} `json:"data"`
 }
 

@@ -2,8 +2,9 @@ package qtrade
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 func (client *Client) GetCommon(ctx context.Context) (*CommonData, error) {
@@ -49,4 +50,19 @@ func (client *Client) GetTickers(ctx context.Context) ([]Ticker, error) {
 	}
 
 	return result.Data.Tickers, nil
+}
+
+func (client *Client) GetCurrency(ctx context.Context, currency Currency) (*CurrencyData, error) {
+	result := new(GetCurrencyResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/currency/"+string(currency),
+		nil)
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get currency")
+	}
+
+	return &result.Data.Currency, nil
 }
