@@ -37,20 +37,30 @@ type Balance struct {
 }
 
 type Order struct {
-	BaseAmount            float64   `json:"base_amount,string"`
-	CreatedAt             time.Time `json:"created_at"`
-	ID                    int       `json:"id"`
-	MarketAmount          float64   `json:"market_amount,string"`
-	MarketAmountRemaining float64   `json:"market_amount_remaining,string"`
-	Market                Market    `json:"market_id"`
-	Open                  bool      `json:"open"`
-	OrderType             OrderType `json:"order_type"`
-	Price                 float64   `json:"price,string"`
-	Trades                []Trade   `json:"trades"`
-	CloseReason           string    `json:"close_reason,omitempty"`
+	BaseAmount            float64        `json:"base_amount,string"`
+	CreatedAt             time.Time      `json:"created_at"`
+	ID                    int            `json:"id"`
+	MarketAmount          float64        `json:"market_amount,string"`
+	MarketAmountRemaining float64        `json:"market_amount_remaining,string"`
+	Market                Market         `json:"market_id"`
+	Open                  bool           `json:"open"`
+	OrderType             OrderType      `json:"order_type"`
+	Price                 float64        `json:"price,string"`
+	Trades                []PrivateTrade `json:"trades"`
+	CloseReason           string         `json:"close_reason,omitempty"`
 }
 
-type Trade struct {
+// PublicTrade does not contain detailed info about a trade, and is returned by public endpoints.
+type PublicTrade struct {
+	Amount      float64   `json:"amount,string"`
+	CreatedAt   time.Time `json:"created_at"`
+	ID          int       `json:"id"`
+	Price       float64   `json:"price,string"`
+	SellerTaker *bool     `json:"seller_taker,omitempty"`
+}
+
+// PrivateTrade contains detailed information about a trade, and is usually only available to one of the users involved.
+type PrivateTrade struct {
 	BaseAmount   float64   `json:"base_amount,string"`
 	BaseFee      float64   `json:"base_fee,string"`
 	CreatedAt    time.Time `json:"created_at"`
@@ -133,7 +143,7 @@ type MarketData struct {
 	CanCancel      bool           `json:"can_cancel"`
 	CanTrade       bool           `json:"can_trade"`
 	CanView        bool           `json:"can_view"`
-	Market         Market         `json:"id"`
+	ID             Market         `json:"id"`
 	MakerFee       float64        `json:"maker_fee,string"`
 	MarketCurrency Currency       `json:"market_currency"`
 	Metadata       MarketMetadata `json:"metadata"`
@@ -185,6 +195,15 @@ type GetCurrenciesResult struct {
 	} `json:"data"`
 }
 
+type GetMarketResult struct {
+	Data GetMarketData `json:"data"`
+}
+
+type GetMarketData struct {
+	Market       MarketData    `json:"market"`
+	RecentTrades []PublicTrade `json:"recent_trades"`
+}
+
 // Private endpoint results
 
 type ErrorResult struct {
@@ -228,7 +247,7 @@ type GetOrderResult struct {
 
 type GetTradesResult struct {
 	Data struct {
-		Trades []Trade `json:"trades"`
+		Trades []PrivateTrade `json:"trades"`
 	} `json:"data"`
 }
 

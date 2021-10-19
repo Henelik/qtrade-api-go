@@ -3,6 +3,7 @@ package qtrade
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -14,6 +15,7 @@ const (
 	tickersTestData    = `{"data": {"markets": [{"ask": "0.0034","bid": "0.0011","day_avg_price": null,"day_change": null,"day_high": null,"day_low": null,"day_open": null,"day_volume_base": "0","day_volume_market": "0","id": 23,"id_hr": "GRIN_BTC","last": "0.0033"},{"ask": "0.000099","bid": "0.0000795","day_avg_price": "0.0000795337894515","day_change": "-0.2205882352941176","day_high": "0.00008","day_low": "0.0000795","day_open": "0.000102","day_volume_base": "0.07353291","day_volume_market": "924.549308","id": 19,"id_hr": "SNOW_BTC","last": "0.0000795"}]}}`
 	currencyTestData   = `{"data": {"currency": {"can_withdraw": true,"code": "BTC","config": {"address_version": 0,"default_signer": 6,"explorerAddressURL": "https://live.blockcypher.com/btc/address/","explorerTransactionURL": "https://live.blockcypher.com/btc/tx/","p2sh_address_version": 5,"price": 9159.72,"required_confirmations": 2,"required_generate_confirmations": 100,"satoshi_per_byte": 15,"withdraw_fee": "0.0005"},"long_name": "Bitcoin","metadata": {"withdraw_notices": []},"precision": 8,"status": "ok","type": "bitcoin_like"}}}`
 	currenciesTestData = `{"data": {"currencies": [{"can_withdraw": true,"code": "BTC","config": {"address_version": 0,"default_signer": 6,"explorerAddressURL": "https://live.blockcypher.com/btc/address/","explorerTransactionURL": "https://live.blockcypher.com/btc/tx/","p2sh_address_version": 5,"price": 9159.72,"required_confirmations": 2,"required_generate_confirmations": 100,"satoshi_per_byte": 15,"withdraw_fee": "0.0005"},"long_name": "Bitcoin","metadata": {"withdraw_notices": []},"precision": 8,"status": "ok","type": "bitcoin_like"},{"can_withdraw": true,"code": "BIS","config": {"data_max": 1000,"default_signer": 54,"enable_address_data": true,"explorerAddressURL": "https://bismuth.online/search?quicksearch=","explorerTransactionURL": "https://bismuth.online/search?quicksearch=","price": 0.11314929085578249,"required_confirmations": 35,"withdraw_fee": "0.25"},"long_name": "Bismuth","metadata": {"deposit_notices": [],"hidden": false},"precision": 8,"status": "ok","type": "bismuth"}]}}`
+	marketTestData     = `{"data": {"market": {"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": false,"id": 15,"maker_fee": "0.005","market_currency": "VEO","metadata": {},"taker_fee": "0.005"},"recent_trades": [{"amount": "1.64360163","created_at": "2019-01-31T23:09:31.419131Z","id": 51362,"price": "0.0191"},{"amount": "1.60828469","created_at": "2019-01-31T22:05:16.531659Z","id": 51362,"price": "0.02248"}]}}`
 )
 
 func TestClient_GetCommon(t *testing.T) {
@@ -119,7 +121,7 @@ func TestClient_GetCommon(t *testing.T) {
 				CanCancel:      false,
 				CanTrade:       false,
 				CanView:        false,
-				Market:         MMO_BTC,
+				ID:             MMO_BTC,
 				MakerFee:       0.0025,
 				MarketCurrency: MMO,
 				Metadata: MarketMetadata{
@@ -138,7 +140,7 @@ func TestClient_GetCommon(t *testing.T) {
 				CanCancel:      true,
 				CanTrade:       true,
 				CanView:        true,
-				Market:         BIS_BTC,
+				ID:             BIS_BTC,
 				MakerFee:       0,
 				MarketCurrency: "BIS",
 				Metadata: MarketMetadata{
@@ -369,4 +371,51 @@ func TestClient_GetCurrencies(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/currencies"])
+}
+
+func TestClient_GetMarket(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/market/VEO_BTC",
+		httpmock.NewStringResponder(200, marketTestData))
+
+	wantTime1, _ := time.Parse(time.RFC3339Nano, "2019-01-31T23:09:31.419131Z")
+	wantTime2, _ := time.Parse(time.RFC3339Nano, "2019-01-31T22:05:16.531659Z")
+
+	want := &GetMarketData{
+		Market: MarketData{
+			BaseCurrency:   BTC,
+			CanCancel:      true,
+			CanTrade:       true,
+			CanView:        false,
+			ID:             VEO_BTC,
+			MakerFee:       0.005,
+			MarketCurrency: VEO,
+			Metadata:       MarketMetadata{},
+			TakerFee:       0.005,
+		},
+		RecentTrades: []PublicTrade{
+			{
+				Amount:    1.64360163,
+				CreatedAt: wantTime1,
+				ID:        51362,
+				Price:     0.0191,
+			},
+			{
+				Amount:    1.60828469,
+				CreatedAt: wantTime2,
+				ID:        51362,
+				Price:     0.02248,
+			},
+		},
+	}
+
+	got, err := testClient.GetMarket(context.Background(), VEO_BTC)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/market/VEO_BTC"])
 }

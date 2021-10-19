@@ -81,3 +81,19 @@ func (client *Client) GetCurrencies(ctx context.Context) ([]CurrencyData, error)
 
 	return result.Data.Currencies, nil
 }
+
+func (client *Client) GetMarket(ctx context.Context, market Market) (*GetMarketData, error) {
+	result := new(GetMarketResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/market/"+market.String(),
+		nil)
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get market")
+	}
+
+	return &result.Data, nil
+
+}

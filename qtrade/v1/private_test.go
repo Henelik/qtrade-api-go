@@ -2,10 +2,11 @@ package qtrade
 
 import (
 	"context"
-	"github.com/jarcoal/httpmock"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -133,7 +134,7 @@ func TestClient_GetUserMarket(t *testing.T) {
 				Open:                  false,
 				OrderType:             "buy_limit",
 				Price:                 9.90682437,
-				Trades: []Trade{
+				Trades: []PrivateTrade{
 					{
 						BaseAmount:   49.37394186,
 						BaseFee:      0.12343485,
@@ -179,7 +180,7 @@ func TestClient_GetUserMarket(t *testing.T) {
 				Open:                  true,
 				OrderType:             "sell_limit",
 				Price:                 9.90428849,
-				Trades: []Trade{
+				Trades: []PrivateTrade{
 					{
 						BaseAmount:   49.37366303,
 						BaseFee:      0.12343415,
@@ -224,7 +225,7 @@ func TestClient_GetOrders(t *testing.T) {
 			Open:                  false,
 			OrderType:             "buy_limit",
 			Price:                 9.90682437,
-			Trades: []Trade{
+			Trades: []PrivateTrade{
 				{
 					BaseAmount:   49.37394186,
 					BaseFee:      0.12343485,
@@ -255,7 +256,7 @@ func TestClient_GetOrders(t *testing.T) {
 			Open:                  true,
 			OrderType:             "buy_limit",
 			Price:                 9.85114439,
-			Trades:                []Trade(nil),
+			Trades:                []PrivateTrade(nil),
 		},
 	}
 
@@ -310,7 +311,7 @@ func TestClient_GetTrades(t *testing.T) {
 	t1, _ := time.Parse(time.RFC3339, "2019-10-14T17:42:42.874812Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-10-19T11:10:19.387393Z")
 
-	want := []Trade{
+	want := []PrivateTrade{
 		{
 			BaseAmount:   0.00022751,
 			BaseFee:      0,
@@ -598,7 +599,7 @@ func TestClient_CreateSellLimit(t *testing.T) {
 		Open:                  false,
 		OrderType:             SellLimit,
 		Price:                 0.01,
-		Trades: []Trade{
+		Trades: []PrivateTrade{
 			{
 				BaseAmount:   0.27834267,
 				BaseFee:      0.00069585,
@@ -650,7 +651,7 @@ func TestClient_CreateBuyLimit(t *testing.T) {
 		Open:                  true,
 		OrderType:             BuyLimit,
 		Price:                 0.1,
-		Trades:                []Trade{},
+		Trades:                []PrivateTrade{},
 	}
 
 	got, err := testClient.CreateBuyLimit(context.Background(), 10, LTC_BTC, 0.1)

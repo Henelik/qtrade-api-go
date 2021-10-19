@@ -5,9 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 func (client *Client) GetUserInfo(ctx context.Context) (*UserInfo, error) {
@@ -94,7 +95,7 @@ func (client *Client) GetOrder(ctx context.Context, id int) (*Order, error) {
 	return &result.Data.Order, nil
 }
 
-func (client *Client) GetTrades(ctx context.Context, params map[string]string) ([]Trade, error) {
+func (client *Client) GetTrades(ctx context.Context, params map[string]string) ([]PrivateTrade, error) {
 	result := new(GetTradesResult)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", client.Config.Endpoint+"/v1/user/trades", nil)
