@@ -179,6 +179,12 @@ type GetCurrencyResult struct {
 	} `json:"data"`
 }
 
+type GetCurrenciesResult struct {
+	Data struct {
+		Currencies []CurrencyData `json:"currencies"`
+	} `json:"data"`
+}
+
 // Private endpoint results
 
 type ErrorResult struct {
