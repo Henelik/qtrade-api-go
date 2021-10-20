@@ -19,7 +19,7 @@ type Client struct {
 	Auth   Auth
 }
 
-func NewQtradeClient(config Configuration) (*Client, error) {
+func NewClient(config Configuration) (*Client, error) {
 	client := &http.Client{
 		Timeout: config.Timeout,
 	}
@@ -47,7 +47,7 @@ func (client *Client) generateHMAC(req *http.Request) (string, string, error) {
 	reqDetails.WriteString("\n")
 
 	if req.Body != nil {
-		bodyBytes := []byte{}
+		bodyBytes := make([]byte, 0)
 
 		_, err := req.Body.Read(bodyBytes)
 		if err != nil {
@@ -111,14 +111,14 @@ func checkForError(resp *http.Response) error {
 	if resp.StatusCode >= 400 {
 		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return errors.Wrap(err, "API response: "+resp.Status)
+			return errors.Wrap(err, "failed to read HTTP response body with error "+resp.Status)
 		}
 
 		apiErrors := new(ErrorResult)
 
 		err = json.Unmarshal(b, apiErrors)
 		if err != nil {
-			return errors.Wrap(err, "API response: "+resp.Status)
+			return errors.New(fmt.Sprintf("got API error with bad JSON: %s: %s", resp.Status, b))
 		}
 
 		resultErr := errors.New("API response: " + resp.Status)

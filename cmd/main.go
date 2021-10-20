@@ -31,7 +31,7 @@ func main() {
 
 	fmt.Printf("config: %#v\n", config)
 
-	client, err := v1.NewQtradeClient(*config)
+	client, err := v1.NewClient(*config)
 	if err != nil {
 		panic(err)
 	}
