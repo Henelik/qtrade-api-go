@@ -2,6 +2,7 @@ package qtrade
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -110,4 +111,19 @@ func (client *Client) GetMarkets(ctx context.Context) ([]MarketData, error) {
 	}
 
 	return result.Data.Markets, nil
+}
+
+func (client *Client) GetMarketTrades(ctx context.Context, market Market) ([]PublicTrade, error) {
+	result := new(GetMarketTradesResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		fmt.Sprintf("%s/v1/market/%s/trades", client.Config.Endpoint, market.String()),
+		nil)
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get market")
+	}
+
+	return result.Data.Trades, nil
 }

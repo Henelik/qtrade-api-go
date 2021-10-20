@@ -205,11 +205,15 @@ type GetMarketData struct {
 }
 
 type GetMarketsResult struct {
-	Data GetMarketsData `json:"data"`
+	Data struct {
+		Markets []MarketData `json:"markets"`
+	} `json:"data"`
 }
 
-type GetMarketsData struct {
-	Markets []MarketData `json:"markets"`
+type GetMarketTradesResult struct {
+	Data struct {
+		Trades []PublicTrade `json:"trades"`
+	} `json:"data"`
 }
 
 // Private endpoint results
