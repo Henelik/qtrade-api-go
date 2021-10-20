@@ -33,7 +33,7 @@ func (client *Client) GetTicker(ctx context.Context, market Market) (*Ticker, er
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get ticker")
+		return nil, errors.Wrap(err, "failed to get ticker for "+market.String())
 	}
 
 	return &result.Data, nil
@@ -63,7 +63,7 @@ func (client *Client) GetCurrency(ctx context.Context, currency Currency) (*Curr
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get currency")
+		return nil, errors.Wrap(err, "failed to get currency "+string(currency))
 	}
 
 	return &result.Data.Currency, nil
@@ -93,7 +93,7 @@ func (client *Client) GetMarket(ctx context.Context, market Market) (*GetMarketD
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get market")
+		return nil, errors.Wrap(err, "failed to get market "+market.String())
 	}
 
 	return &result.Data, nil
@@ -123,7 +123,7 @@ func (client *Client) GetMarketTrades(ctx context.Context, market Market) ([]Pub
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get market trades")
+		return nil, errors.Wrap(err, "failed to get market trades for "+market.String())
 	}
 
 	return result.Data.Trades, nil
@@ -138,17 +138,17 @@ func (client *Client) GetOrderbook(ctx context.Context, market Market) (*Orderbo
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get orderbook")
+		return nil, errors.Wrap(err, "failed to get orderbook for "+market.String())
 	}
 
 	floatBuy, err := stringMapToFloatMap(result.Data.Buy)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get orderbook")
+		return nil, errors.Wrap(err, "failed to get orderbook for "+market.String())
 	}
 
 	floatSell, err := stringMapToFloatMap(result.Data.Sell)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get orderbook")
+		return nil, errors.Wrap(err, "failed to get orderbook for "+market.String())
 	}
 
 	orderbook := &Orderbook{
@@ -189,7 +189,7 @@ func (client *Client) GetOHLCV(ctx context.Context, market Market, interval Inte
 
 	err = client.doRequest(req, result, params)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get OHLCV")
+		return nil, errors.Wrap(err, "failed to get OHLCV for market "+market.String())
 	}
 
 	return result.Data.Slices, nil

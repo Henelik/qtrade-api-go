@@ -50,12 +50,12 @@ func (client *Client) GetUserMarket(ctx context.Context, market Market, params m
 		fmt.Sprintf("%s/v1/user/market/%s", client.Config.Endpoint, market.String()),
 		nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user market view")
+		return nil, errors.Wrap(err, "failed to get user market view for "+market.String())
 	}
 
 	err = client.doRequest(req, result, params)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user market view")
+		return nil, errors.Wrap(err, "failed to get user market view for "+market.String())
 	}
 
 	return &result.Data, nil
@@ -84,12 +84,12 @@ func (client *Client) GetOrder(ctx context.Context, id int) (*Order, error) {
 		fmt.Sprintf("%s/v1/user/order/%v", client.Config.Endpoint, id),
 		nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get order")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to get order %v", id))
 	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get order")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to get order %v", id))
 	}
 
 	return &result.Data.Order, nil
@@ -126,12 +126,12 @@ func (client *Client) CancelOrder(ctx context.Context, id int) error {
 		client.Config.Endpoint+"/v1/user/cancel_order",
 		bytes.NewReader(bodyBytes))
 	if err != nil {
-		return errors.Wrap(err, "failed to cancel order")
+		return errors.Wrap(err, fmt.Sprintf("failed to cancel order %v", id))
 	}
 
 	auth, timestamp, err := client.generateHMAC(req)
 	if err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("failed to cancel order %v", id))
 	}
 
 	req.Header.Set("Authorization", auth)
@@ -139,7 +139,7 @@ func (client *Client) CancelOrder(ctx context.Context, id int) error {
 
 	resp, err := client.Client.Do(req)
 	if err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("failed to cancel order %v", id))
 	}
 
 	return checkForError(resp)
@@ -154,7 +154,7 @@ func (client *Client) Withdraw(ctx context.Context, address string, amount float
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to withdraw "+string(currency))
 	}
 
 	result := new(WithdrawResult)
@@ -164,7 +164,7 @@ func (client *Client) Withdraw(ctx context.Context, address string, amount float
 		client.Config.Endpoint+"/v1/user/withdraw",
 		bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to withdraw")
+		return nil, errors.Wrap(err, "failed to withdraw "+string(currency))
 	}
 
 	return &result.Data, client.doRequest(req, result, nil)
@@ -177,12 +177,12 @@ func (client *Client) GetWithdrawDetails(ctx context.Context, id int) (*Withdraw
 		client.Config.Endpoint+"/v1/user/withdraw/"+strconv.Itoa(id),
 		nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get withdraw details")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to get details for withdrawal %v", id))
 	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get withdraw details")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to get details for withdrawal %v", id))
 	}
 
 	return &result.Data.Withdraw, nil
@@ -213,12 +213,12 @@ func (client *Client) GetDeposit(ctx context.Context, id string) ([]DepositDetai
 		client.Config.Endpoint+"/v1/user/deposit/"+id,
 		nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get deposit")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to get deposit %v", id))
 	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get deposit")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to get deposit %v", id))
 	}
 
 	return result.Data.Deposit, nil
@@ -249,12 +249,12 @@ func (client *Client) GetDepositAddress(ctx context.Context, currency Currency) 
 		client.Config.Endpoint+"/v1/user/deposit_address/"+string(currency),
 		nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get deposit address")
+		return nil, errors.Wrap(err, "failed to get deposit address for "+string(currency))
 	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get deposit address")
+		return nil, errors.Wrap(err, "failed to get deposit address for "+string(currency))
 	}
 
 	return &result.Data, nil
@@ -289,7 +289,7 @@ func (client *Client) CreateSellLimit(ctx context.Context, amount float64, marke
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create sell order")
+		return nil, errors.Wrap(err, "failed to create sell order for "+market.String())
 	}
 
 	req, err := http.NewRequestWithContext(ctx,
@@ -299,7 +299,7 @@ func (client *Client) CreateSellLimit(ctx context.Context, amount float64, marke
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create sell order")
+		return nil, errors.Wrap(err, "failed to create sell order for "+market.String())
 	}
 
 	return &result.Data.Order, nil
@@ -316,7 +316,7 @@ func (client *Client) CreateBuyLimit(ctx context.Context, amount float64, market
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create buy order")
+		return nil, errors.Wrap(err, "failed to create buy order for "+market.String())
 	}
 
 	req, err := http.NewRequestWithContext(ctx,
@@ -326,7 +326,7 @@ func (client *Client) CreateBuyLimit(ctx context.Context, amount float64, market
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create buy order")
+		return nil, errors.Wrap(err, "failed to create buy order for "+market.String())
 	}
 
 	return &result.Data.Order, nil
