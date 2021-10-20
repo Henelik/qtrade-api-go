@@ -95,5 +95,19 @@ func (client *Client) GetMarket(ctx context.Context, market Market) (*GetMarketD
 	}
 
 	return &result.Data, nil
+}
 
+func (client *Client) GetMarkets(ctx context.Context) ([]MarketData, error) {
+	result := new(GetMarketsResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		client.Config.Endpoint+"/v1/markets",
+		nil)
+
+	err = client.doRequest(req, result, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get market")
+	}
+
+	return result.Data.Markets, nil
 }

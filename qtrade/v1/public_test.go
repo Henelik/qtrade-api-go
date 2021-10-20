@@ -16,6 +16,7 @@ const (
 	currencyTestData   = `{"data": {"currency": {"can_withdraw": true,"code": "BTC","config": {"address_version": 0,"default_signer": 6,"explorerAddressURL": "https://live.blockcypher.com/btc/address/","explorerTransactionURL": "https://live.blockcypher.com/btc/tx/","p2sh_address_version": 5,"price": 9159.72,"required_confirmations": 2,"required_generate_confirmations": 100,"satoshi_per_byte": 15,"withdraw_fee": "0.0005"},"long_name": "Bitcoin","metadata": {"withdraw_notices": []},"precision": 8,"status": "ok","type": "bitcoin_like"}}}`
 	currenciesTestData = `{"data": {"currencies": [{"can_withdraw": true,"code": "BTC","config": {"address_version": 0,"default_signer": 6,"explorerAddressURL": "https://live.blockcypher.com/btc/address/","explorerTransactionURL": "https://live.blockcypher.com/btc/tx/","p2sh_address_version": 5,"price": 9159.72,"required_confirmations": 2,"required_generate_confirmations": 100,"satoshi_per_byte": 15,"withdraw_fee": "0.0005"},"long_name": "Bitcoin","metadata": {"withdraw_notices": []},"precision": 8,"status": "ok","type": "bitcoin_like"},{"can_withdraw": true,"code": "BIS","config": {"data_max": 1000,"default_signer": 54,"enable_address_data": true,"explorerAddressURL": "https://bismuth.online/search?quicksearch=","explorerTransactionURL": "https://bismuth.online/search?quicksearch=","price": 0.11314929085578249,"required_confirmations": 35,"withdraw_fee": "0.25"},"long_name": "Bismuth","metadata": {"deposit_notices": [],"hidden": false},"precision": 8,"status": "ok","type": "bismuth"}]}}`
 	marketTestData     = `{"data": {"market": {"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": false,"id": 15,"maker_fee": "0.005","market_currency": "VEO","metadata": {},"taker_fee": "0.005"},"recent_trades": [{"amount": "1.64360163","created_at": "2019-01-31T23:09:31.419131Z","id": 51362,"price": "0.0191"},{"amount": "1.60828469","created_at": "2019-01-31T22:05:16.531659Z","id": 51362,"price": "0.02248"}]}}`
+	marketsTestData    = `{"data": {"markets": [{"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": true,"id": 20,"maker_fee": "0.0025","market_currency": "BIS","metadata": {},"taker_fee": "0.0025"},{"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": true,"id": 19,"maker_fee": "0.0075","market_currency": "SNOW","metadata": {},"taker_fee": "0.0075"}]}}`
 )
 
 func TestClient_GetCommon(t *testing.T) {
@@ -418,4 +419,45 @@ func TestClient_GetMarket(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/market/VEO_BTC"])
+}
+
+func TestClient_GetMarkets(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/markets",
+		httpmock.NewStringResponder(200, marketsTestData))
+
+	want := []MarketData{
+		{
+			BaseCurrency:   BTC,
+			CanCancel:      true,
+			CanTrade:       true,
+			CanView:        true,
+			ID:             BIS_BTC,
+			MakerFee:       0.0025,
+			MarketCurrency: BIS,
+			Metadata:       MarketMetadata{},
+			TakerFee:       0.0025,
+		},
+		{
+			BaseCurrency:   BTC,
+			CanCancel:      true,
+			CanTrade:       true,
+			CanView:        true,
+			ID:             SNOW_BTC,
+			MakerFee:       0.0075,
+			MarketCurrency: SNOW,
+			Metadata:       MarketMetadata{},
+			TakerFee:       0.0075,
+		},
+	}
+
+	got, err := testClient.GetMarkets(context.Background())
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/markets"])
 }

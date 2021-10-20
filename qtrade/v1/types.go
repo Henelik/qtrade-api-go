@@ -204,6 +204,14 @@ type GetMarketData struct {
 	RecentTrades []PublicTrade `json:"recent_trades"`
 }
 
+type GetMarketsResult struct {
+	Data GetMarketsData `json:"data"`
+}
+
+type GetMarketsData struct {
+	Markets []MarketData `json:"markets"`
+}
+
 // Private endpoint results
 
 type ErrorResult struct {
