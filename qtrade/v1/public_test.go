@@ -19,6 +19,7 @@ const (
 	marketsTestData      = `{"data": {"markets": [{"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": true,"id": 20,"maker_fee": "0.0025","market_currency": "BIS","metadata": {},"taker_fee": "0.0025"},{"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": true,"id": 19,"maker_fee": "0.0075","market_currency": "SNOW","metadata": {},"taker_fee": "0.0075"}]}}`
 	marketTradesTestData = `{"data": {"trades": [{"amount": "0.00760005","created_at": "2019-05-21T02:41:30.781308Z","id": 51362,"price": "0.01181539","seller_taker": false},{"amount": "4.99515615","created_at": "2019-05-21T02:41:30.781308Z","id": 51354,"price": "0.01180695","seller_taker": false}]}}`
 	orderbookTestData    = `{"data": {"buy": {"0.000009": "150","0.0001032": "100","0.00020139": "100"},"last_change": 1595029625809804,"sell": {"0.02249": "0.99720378","14": "28","5": "100"}}}`
+	ohlcvTestData        = `{"data": {"slices": [{"close": "0.02","high": "0.02","low": "0.02","open": "0.02","time": "2018-04-28T04:00:00Z","volume": "0.00190564"},{"close": "0.02","high": "0.02","low": "0.02","open": "0.02","time": "2018-04-28T08:00:00Z","volume": "0"}]}}`
 )
 
 func TestClient_GetCommon(t *testing.T) {
@@ -529,4 +530,42 @@ func TestClient_GetOrderbook(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/orderbook/VEO_BTC"])
+}
+
+func TestClient_GetOHLCV(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/market/LTC_BTC/ohlcv/fourhour",
+		httpmock.NewStringResponder(200, ohlcvTestData))
+
+	wantTime1, _ := time.Parse(time.RFC3339Nano, "2018-04-28T04:00:00Z")
+	wantTime2, _ := time.Parse(time.RFC3339Nano, "2018-04-28T08:00:00Z")
+
+	want := []OHLCVSlice{
+		{
+			Close:  0.02,
+			High:   0.02,
+			Low:    0.02,
+			Open:   0.02,
+			Time:   wantTime1,
+			Volume: 0.00190564,
+		},
+		{
+			Close:  0.02,
+			High:   0.02,
+			Low:    0.02,
+			Open:   0.02,
+			Time:   wantTime2,
+			Volume: 0,
+		},
+	}
+
+	got, err := testClient.GetOHLCV(context.Background(), LTC_BTC, FourHour, nil)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/market/LTC_BTC/ohlcv/fourhour"])
 }

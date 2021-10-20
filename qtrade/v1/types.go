@@ -232,6 +232,21 @@ type GetOrderbookData struct {
 	Sell       map[string]string `json:"sell"`
 }
 
+type GetOHLCVResult struct {
+	Data struct {
+		Slices []OHLCVSlice `json:"slices"`
+	} `json:"data"`
+}
+
+type OHLCVSlice struct {
+	Close  float64   `json:"close,string"`
+	High   float64   `json:"high,string"`
+	Low    float64   `json:"low,string"`
+	Open   float64   `json:"open,string"`
+	Time   time.Time `json:"time"`
+	Volume float64   `json:"volume,string"`
+}
+
 // Private endpoint results
 
 type ErrorResult struct {

@@ -3,7 +3,10 @@
 
 package qtrade
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 type Currency string
 
@@ -276,3 +279,36 @@ const (
 	SellLimit OrderType = "sell_limit"
 	BuyLimit  OrderType = "buy_limit"
 )
+
+type Interval string
+
+const (
+	FiveMin    = "fivemin"
+	FifteenMin = "fifteenmin"
+	ThirtyMin  = "thirtymin"
+	OneHour    = "onehour"
+	TwoHour    = "twohour"
+	FourHour   = "fourhour"
+	OneDay     = "oneday"
+)
+
+func (interval Interval) Duration() time.Duration {
+	switch interval {
+	case FiveMin:
+		return time.Minute * 5
+	case FifteenMin:
+		return time.Minute * 15
+	case ThirtyMin:
+		return time.Minute * 30
+	case OneHour:
+		return time.Hour
+	case TwoHour:
+		return time.Hour * 2
+	case FourHour:
+		return time.Hour * 4
+	case OneDay:
+		return time.Hour * 24
+	}
+
+	return 0
+}

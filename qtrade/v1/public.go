@@ -179,3 +179,18 @@ func stringMapToFloatMap(input map[string]string) (map[float64]float64, error) {
 
 	return output, nil
 }
+
+func (client *Client) GetOHLCV(ctx context.Context, market Market, interval Interval, params map[string]string) ([]OHLCVSlice, error) {
+	result := new(GetOHLCVResult)
+
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		fmt.Sprintf("%s/v1/market/%s/ohlcv/%s", client.Config.Endpoint, market.String(), interval),
+		nil)
+
+	err = client.doRequest(req, result, params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get OHLCV")
+	}
+
+	return result.Data.Slices, nil
+}
