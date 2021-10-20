@@ -18,6 +18,7 @@ const (
 	marketTestData       = `{"data": {"market": {"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": false,"id": 15,"maker_fee": "0.005","market_currency": "VEO","metadata": {},"taker_fee": "0.005"},"recent_trades": [{"amount": "1.64360163","created_at": "2019-01-31T23:09:31.419131Z","id": 51362,"price": "0.0191"},{"amount": "1.60828469","created_at": "2019-01-31T22:05:16.531659Z","id": 51362,"price": "0.02248"}]}}`
 	marketsTestData      = `{"data": {"markets": [{"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": true,"id": 20,"maker_fee": "0.0025","market_currency": "BIS","metadata": {},"taker_fee": "0.0025"},{"base_currency": "BTC","can_cancel": true,"can_trade": true,"can_view": true,"id": 19,"maker_fee": "0.0075","market_currency": "SNOW","metadata": {},"taker_fee": "0.0075"}]}}`
 	marketTradesTestData = `{"data": {"trades": [{"amount": "0.00760005","created_at": "2019-05-21T02:41:30.781308Z","id": 51362,"price": "0.01181539","seller_taker": false},{"amount": "4.99515615","created_at": "2019-05-21T02:41:30.781308Z","id": 51354,"price": "0.01180695","seller_taker": false}]}}`
+	orderbookTestData    = `{"data": {"buy": {"0.000009": "150","0.0001032": "100","0.00020139": "100"},"last_change": 1595029625809804,"sell": {"0.02249": "0.99720378","14": "28","5": "100"}}}`
 )
 
 func TestClient_GetCommon(t *testing.T) {
@@ -498,4 +499,34 @@ func TestClient_GetMarketTrades(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/market/LTC_BTC/trades"])
+}
+
+func TestClient_GetOrderbook(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/orderbook/VEO_BTC",
+		httpmock.NewStringResponder(200, orderbookTestData))
+
+	want := &Orderbook{
+		Buy: map[float64]float64{
+			0.000009:   150,
+			0.0001032:  100,
+			0.00020139: 100,
+		},
+		LastChange: 1595029625809804,
+		Sell: map[float64]float64{
+			0.02249: 0.99720378,
+			14:      28,
+			5:       100,
+		},
+	}
+
+	got, err := testClient.GetOrderbook(context.Background(), VEO_BTC)
+	if assert.NoError(t, err) {
+		assert.Equal(t, want, got)
+	}
+
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/orderbook/VEO_BTC"])
 }

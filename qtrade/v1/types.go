@@ -161,6 +161,12 @@ type MarketNotice struct {
 	Type    string `json:"type"`
 }
 
+type Orderbook struct {
+	Buy        map[float64]float64 `json:"buy"`
+	LastChange int                 `json:"last_change"`
+	Sell       map[float64]float64 `json:"sell"`
+}
+
 // Public endpoint results
 
 type GetCommonResult struct {
@@ -214,6 +220,16 @@ type GetMarketTradesResult struct {
 	Data struct {
 		Trades []PublicTrade `json:"trades"`
 	} `json:"data"`
+}
+
+type GetOrderbookResult struct {
+	Data GetOrderbookData `json:"data"`
+}
+
+type GetOrderbookData struct {
+	Buy        map[string]string `json:"buy"`
+	LastChange int               `json:"last_change"`
+	Sell       map[string]string `json:"sell"`
 }
 
 // Private endpoint results
