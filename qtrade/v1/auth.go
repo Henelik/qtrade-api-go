@@ -13,8 +13,8 @@ type Auth struct {
 func AuthFromKeypair(keypair string) (*Auth, error) {
 	keys := strings.Split(keypair, ":")
 
-	if len(keys) < 2 {
-		return nil, errors.New("AuthFromKeypair: could not parse keypair")
+	if len(keys) != 2 {
+		return nil, errors.New("failed to parse keypair")
 	}
 
 	return &Auth{
