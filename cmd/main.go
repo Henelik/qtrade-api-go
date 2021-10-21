@@ -9,11 +9,11 @@ import (
 
 	"github.com/spf13/viper"
 
-	v1 "github.com/Henelik/qtrade-api-go/qtrade/v1"
+	"github.com/Henelik/qtrade-api-go/qtrade/v1"
 )
 
 func main() {
-	config := new(v1.Configuration)
+	config := new(qtrade.Configuration)
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -31,7 +31,7 @@ func main() {
 
 	fmt.Printf("config: %#v\n", config)
 
-	client, err := v1.NewClient(*config)
+	client, err := qtrade.NewClient(*config)
 	if err != nil {
 		panic(err)
 	}
