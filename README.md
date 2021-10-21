@@ -7,6 +7,13 @@ This is an unofficial Go client for the [qTrade.io](https://qtrade.io) crypto ex
 
 The client provides helpful methods, data structures, and enums to make the experience of using the qTrade API in Go as seamless as possible.
 
+## Features
+
+* All documented API methods are implemented
+* Automatic HMAC signature generation
+* Automatic API error checking and parsing
+* Enumerated data types for Markets, Currencies, and Order Types
+
 ## Documentation
 
 Instantiating a client and making a request is easy:
@@ -50,4 +57,5 @@ Please refer to the [official documentation](https://qtrade-exchange.github.io/q
 ## Planned Features
 
 * Automatic rate limit waiting
+* Configurable retries
 * Improve client documentation
