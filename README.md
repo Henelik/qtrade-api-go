@@ -32,7 +32,7 @@ import (
 func main() {
 	config := qtrade.Configuration{
 		HMACKeypair: "1:111111111111111111111111111",
-		Endpoint:    "https://qtrade.io/api",
+		Endpoint:    "https://api.qtrade.io",
 		Timeout:     time.Second * 60,
 	}
 
