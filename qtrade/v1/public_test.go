@@ -537,7 +537,7 @@ func TestClient_GetOHLCV(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	// Exact URL match
-	httpmock.RegisterResponder("GET", "http://localhost/v1/market/LTC_BTC/ohlcv/fourhour",
+	httpmock.RegisterResponder("GET", "http://localhost/v1/market/LTC_BTC/ohlcv/fourhour?limit=1000",
 		httpmock.NewStringResponder(200, ohlcvTestData))
 
 	wantTime1, _ := time.Parse(time.RFC3339Nano, "2018-04-28T04:00:00Z")
@@ -562,10 +562,10 @@ func TestClient_GetOHLCV(t *testing.T) {
 		},
 	}
 
-	got, err := testClient.GetOHLCV(context.Background(), LTC_BTC, FourHour, nil)
+	got, err := testClient.GetOHLCV(context.Background(), LTC_BTC, FourHour, map[string]string{"limit": "1000"})
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, got)
 	}
 
-	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/market/LTC_BTC/ohlcv/fourhour"])
+	assert.Equal(t, 1, httpmock.GetCallCountInfo()["GET http://localhost/v1/market/LTC_BTC/ohlcv/fourhour?limit=1000"])
 }

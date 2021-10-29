@@ -76,6 +76,8 @@ func (client *Client) doRequest(req *http.Request, result interface{}, queryPara
 		q.Add(k, v)
 	}
 
+	req.URL.RawQuery = q.Encode()
+
 	auth, timestamp, err := client.generateHMAC(req)
 	if err != nil {
 		return errors.Wrap(err, "could not generate HMAC")
