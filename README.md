@@ -1,7 +1,7 @@
 [![Go](https://github.com/Henelik/qtrade-api-go/actions/workflows/go.yml/badge.svg)](https://github.com/Henelik/qtrade-api-go/actions/workflows/go.yml)
 [![codecov](https://codecov.io/gh/Henelik/qtrade-api-go/branch/master/graph/badge.svg?token=WE6RKWXNH2)](https://codecov.io/gh/Henelik/qtrade-api-go)
 
-# qTrade API Go <a href="https://addons.mozilla.org/en-US/firefox/addon/beeneedeenee-cumberbumber/"><img src="https://qtrade.io/images/logo.png" alt="qTrade" width="32"/></a>
+# qTrade API Go <a href="https://qtrade.io"><img src="https://qtrade.io/images/logo.png" alt="qTrade" width="32"/></a>
 
 This is an unofficial Go client for the [qTrade.io](https://qtrade.io) crypto exchange API.
 
