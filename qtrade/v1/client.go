@@ -8,9 +8,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
+)
+
+var (
+	ErrTooManyRequests = errors.New("too many requests")
+	ErrHTTPRetryable   = errors.New("a retryable HTTP error occurred")
 )
 
 type Client struct {
@@ -70,6 +76,8 @@ func (client *Client) generateHMAC(req *http.Request) (string, string, error) {
 }
 
 func (client *Client) doRequest(req *http.Request, result interface{}, queryParams map[string]string) error {
+	retries := 0
+
 	q := req.URL.Query()
 
 	for k, v := range queryParams {
@@ -78,38 +86,69 @@ func (client *Client) doRequest(req *http.Request, result interface{}, queryPara
 
 	req.URL.RawQuery = q.Encode()
 
-	auth, timestamp, err := client.generateHMAC(req)
-	if err != nil {
-		return errors.Wrap(err, "could not generate HMAC")
-	}
+	for retries <= client.Config.MaxRetries {
+		auth, timestamp, err := client.generateHMAC(req)
+		if err != nil {
+			return errors.Wrap(err, "could not generate HMAC")
+		}
 
-	req.Header.Set("Authorization", auth)
-	req.Header.Set("HMAC-Timestamp", timestamp)
+		req.Header.Set("Authorization", auth)
+		req.Header.Set("HMAC-Timestamp", timestamp)
 
-	resp, err := client.Client.Do(req)
-	if err != nil {
-		return errors.Wrap(err, "could not complete HTTP request")
-	}
+		resp, err := client.Client.Do(req)
+		if err != nil {
+			return errors.Wrap(err, "could not complete HTTP request")
+		}
 
-	err = checkForError(resp)
-	if err != nil {
-		return errors.Wrap(err, "HTTP error")
-	}
+		err = checkForError(resp)
+		// retry, if applicable
+		switch {
+		case errors.Is(err, ErrTooManyRequests) && retries < client.Config.MaxRetries:
+			retries++
 
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return errors.Wrap(err, "could not read response body")
-	}
+			reset, atoiErr := strconv.Atoi(resp.Header.Get("x-ratelimit-reset"))
+			if atoiErr != nil {
+				return errors.Wrap(atoiErr, "could not parse ratelimit reset header")
+			}
 
-	err = json.Unmarshal(b, result)
-	if err != nil {
-		return errors.Wrap(err, "could not unmarshal request result")
+			time.Sleep(time.Duration(reset) * time.Second)
+
+			continue
+
+		case errors.Is(err, ErrHTTPRetryable) && retries < client.Config.MaxRetries:
+			retries++
+			time.Sleep(client.Config.Backoff)
+			continue
+
+		case err != nil:
+			return err
+		}
+
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return errors.Wrap(err, "could not read response body")
+		}
+
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return errors.Wrap(err, "could not unmarshal request result")
+		}
+
+		return nil
 	}
 
 	return nil
 }
 
 func checkForError(resp *http.Response) error {
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return ErrTooManyRequests
+	}
+
+	if resp.StatusCode == http.StatusInternalServerError || resp.StatusCode == http.StatusServiceUnavailable {
+		return ErrHTTPRetryable
+	}
+
 	if resp.StatusCode >= 400 {
 		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {

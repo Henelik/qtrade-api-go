@@ -1,11 +1,16 @@
 package qtrade
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 
 	"bou.ke/monkey"
 	"github.com/stretchr/testify/assert"
@@ -110,4 +115,55 @@ func TestClient_checkForError(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestClient_Retry(t *testing.T) {
+	retryClient, _ := NewClient(
+		Configuration{
+			HMACKeypair: "1:1111111111111111111111111111111111111111111111111111111111111111",
+			Endpoint:    "http://localhost",
+			Timeout:     time.Second * 10,
+			Backoff:     time.Millisecond,
+			MaxRetries:  1,
+		})
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Exact URL match
+	httpmock.RegisterResponder("GET", "http://localhost/v1/user/me",
+		httpmock.NewStringResponder(503, ``))
+
+	_, err := retryClient.GetUserInfo(context.Background())
+	assert.ErrorIs(t, err, ErrHTTPRetryable)
+
+	assert.Equal(t, 2, httpmock.GetCallCountInfo()["GET http://localhost/v1/user/me"])
+}
+
+func TestClient_RateLimit(t *testing.T) {
+	callCount := 0
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		callCount++
+
+		w.Header().Set("x-ratelimit-reset", "1")
+		w.WriteHeader(http.StatusTooManyRequests)
+	}))
+
+	defer server.Close()
+
+	retryClient, _ := NewClient(
+		Configuration{
+			HMACKeypair: "1:1111111111111111111111111111111111111111111111111111111111111111",
+			Endpoint:    server.URL,
+			Timeout:     time.Second * 10,
+			Backoff:     time.Millisecond,
+			MaxRetries:  1,
+		})
+
+	_, err := retryClient.GetUserInfo(context.Background())
+	fmt.Printf("%v\n", err)
+	assert.ErrorIs(t, err, ErrTooManyRequests)
+
+	assert.Equal(t, 2, callCount)
 }
