@@ -13,6 +13,8 @@ The client provides helpful methods, data structures, and enums to make the expe
 * Automatic HMAC signature generation
 * Automatic API error checking and parsing
 * Enumerated data types for Markets, Currencies, and Order Types
+* Automatic rate limit waiting
+* Configurable retries
 
 ## Documentation
 
@@ -55,7 +57,5 @@ func main() {
 Please refer to the [official documentation](https://qtrade-exchange.github.io/qtrade-docs) for more information.
 
 ## Planned Features
-
-* Automatic rate limit waiting
-* Configurable retries
+* Helper functions (e.g. cancel all orders on a given market)
 * Improve client documentation
