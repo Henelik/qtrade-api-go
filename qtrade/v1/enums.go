@@ -123,7 +123,7 @@ const (
 	BTC_pUSD    Market = 43
 	ETH_pUSD    Market = 44
 	PEG_pUSD    Market = 45
-	pFCT_pUSD   Market = 46
+	PFCT_pUSD   Market = 46
 	FCT_pUSD    Market = 47
 	FCT_BTC     Market = 48
 	IDNA_BTC    Market = 49
@@ -229,7 +229,7 @@ func (m Market) String() string {
 		return "ETH_pUSD"
 	case PEG_pUSD:
 		return "PEG_pUSD"
-	case pFCT_pUSD:
+	case PFCT_pUSD:
 		return "pFCT_pUSD"
 	case FCT_pUSD:
 		return "FCT_pUSD"
