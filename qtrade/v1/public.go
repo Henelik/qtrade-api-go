@@ -15,6 +15,9 @@ func (client *Client) GetCommon(ctx context.Context) (*CommonData, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/common",
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get common data")
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -30,6 +33,9 @@ func (client *Client) GetTicker(ctx context.Context, market Market) (*Ticker, er
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/ticker/"+market.String(),
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get ticker for "+market.String())
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -45,6 +51,9 @@ func (client *Client) GetTickers(ctx context.Context) ([]Ticker, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/tickers",
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get tickers")
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -60,6 +69,9 @@ func (client *Client) GetCurrency(ctx context.Context, currency Currency) (*Curr
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/currency/"+string(currency),
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get currency "+string(currency))
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -75,6 +87,9 @@ func (client *Client) GetCurrencies(ctx context.Context) ([]CurrencyData, error)
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/currencies",
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get currencies")
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -90,6 +105,9 @@ func (client *Client) GetMarket(ctx context.Context, market Market) (*GetMarketD
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/market/"+market.String(),
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get market "+market.String())
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -105,6 +123,9 @@ func (client *Client) GetMarkets(ctx context.Context) ([]MarketData, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/markets",
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get markets")
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -120,6 +141,9 @@ func (client *Client) GetMarketTrades(ctx context.Context, market Market) ([]Pub
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		fmt.Sprintf("%s/v1/market/%s/trades", client.Config.Endpoint, market.String()),
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get market trades for "+market.String())
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -135,6 +159,9 @@ func (client *Client) GetOrderbook(ctx context.Context, market Market) (*Orderbo
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		client.Config.Endpoint+"/v1/orderbook/"+market.String(),
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get orderbook for "+market.String())
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -186,6 +213,9 @@ func (client *Client) GetOHLCV(ctx context.Context, market Market, interval Inte
 	req, err := http.NewRequestWithContext(ctx, "GET",
 		fmt.Sprintf("%s/v1/market/%s/ohlcv/%s", client.Config.Endpoint, market.String(), interval),
 		nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get OHLCV for market "+market.String())
+	}
 
 	err = client.doRequest(req, result, params)
 	if err != nil {

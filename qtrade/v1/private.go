@@ -296,6 +296,9 @@ func (client *Client) CreateSellLimit(ctx context.Context, amount float64, marke
 		"POST",
 		client.Config.Endpoint+"/v1/user/sell_limit",
 		bytes.NewReader(bodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create sell order")
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
@@ -323,6 +326,9 @@ func (client *Client) CreateBuyLimit(ctx context.Context, amount float64, market
 		"POST",
 		client.Config.Endpoint+"/v1/user/buy_limit",
 		bytes.NewReader(bodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create buy order")
+	}
 
 	err = client.doRequest(req, result, nil)
 	if err != nil {
