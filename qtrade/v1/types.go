@@ -73,9 +73,14 @@ type PrivateTrade struct {
 	Side         string    `json:"side,omitempty"`
 }
 
-type QtradeError struct {
+// nolint: golint
+type Error struct {
 	Code  string `json:"code"`
 	Title string `json:"title"`
+}
+
+func (err Error) Error() string {
+	return err.Title
 }
 
 type Transfer struct {
@@ -100,7 +105,7 @@ type Ticker struct {
 	DayVolumeBase   float64 `json:"day_volume_base,string"`
 	DayVolumeMarket float64 `json:"day_volume_market,string"`
 	Market          Market  `json:"id"`
-	IdHr            string  `json:"id_hr"`
+	IDHr            string  `json:"id_hr"`
 	Last            float64 `json:"last,string"`
 }
 
@@ -250,7 +255,7 @@ type OHLCVSlice struct {
 // Private endpoint results
 
 type ErrorResult struct {
-	Errors []QtradeError `json:"errors"`
+	Errors []Error `json:"errors"`
 }
 
 type GetUserInfoResult struct {

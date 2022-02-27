@@ -1,0 +1,14 @@
+# Options for analysis running.
+run:
+  timeout: 5m
+  skip-files:
+    - qtrade/v1/enums.go
+linters:
+  disable-all: true
+  enable:
+    - gofumpt
+    - revive
+    - govet
+    - gocyclo
+    - ineffassign
+    - misspell

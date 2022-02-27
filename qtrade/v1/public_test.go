@@ -55,7 +55,8 @@ func TestClient_GetCommon(t *testing.T) {
 					DelistingDate:   "12/13/2018",
 					WithdrawNotices: nil,
 					DepositNotices:  nil,
-					Hidden:          false},
+					Hidden:          false,
+				},
 				Precision: 8,
 				Status:    "delisted",
 				Type:      "bitcoin_like",
@@ -133,7 +134,8 @@ func TestClient_GetCommon(t *testing.T) {
 					MarketNotices: []MarketNotice{
 						{
 							Message: "Delisting Notice: This market has been delisted due to low volume. Please cancel your orders and withdraw your funds by 12/13/2018.",
-							Type:    "warning"},
+							Type:    "warning",
+						},
 					},
 					Labels: nil,
 				},
@@ -167,7 +169,7 @@ func TestClient_GetCommon(t *testing.T) {
 				DayVolumeBase:   0,
 				DayVolumeMarket: 0,
 				Market:          MMO_BTC,
-				IdHr:            "MMO_BTC",
+				IDHr:            "MMO_BTC",
 				Last:            0.00000076,
 			},
 			{
@@ -181,7 +183,7 @@ func TestClient_GetCommon(t *testing.T) {
 				DayVolumeBase:   0.36885974,
 				DayVolumeMarket: 25092.46665642,
 				Market:          BIS_BTC,
-				IdHr:            "BIS_BTC",
+				IDHr:            "BIS_BTC",
 				Last:            0.00001608,
 			},
 		},
@@ -214,7 +216,7 @@ func TestClient_GetTicker(t *testing.T) {
 		DayVolumeBase:   0.42644484,
 		DayVolumeMarket: 21.63647819,
 		Market:          VEO_BTC,
-		IdHr:            VEO_BTC.String(),
+		IDHr:            VEO_BTC.String(),
 		Last:            0.0191,
 	}
 
@@ -246,7 +248,7 @@ func TestClient_GetTickers(t *testing.T) {
 			DayVolumeBase:   0,
 			DayVolumeMarket: 0,
 			Market:          GRIN_BTC,
-			IdHr:            "GRIN_BTC",
+			IDHr:            "GRIN_BTC",
 			Last:            0.0033,
 		},
 		{
@@ -260,7 +262,7 @@ func TestClient_GetTickers(t *testing.T) {
 			DayVolumeBase:   0.07353291,
 			DayVolumeMarket: 924.549308,
 			Market:          SNOW_BTC,
-			IdHr:            "SNOW_BTC",
+			IDHr:            "SNOW_BTC",
 			Last:            0.0000795,
 		},
 	}

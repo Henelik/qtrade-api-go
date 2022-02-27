@@ -79,6 +79,7 @@ const (
 
 type Market int
 
+// nolint: golint
 const (
 	LTC_BTC     Market = 1
 	RCO_BTC     Market = 2

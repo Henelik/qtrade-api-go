@@ -159,7 +159,7 @@ func checkForError(resp *http.Response) error {
 
 		err = json.Unmarshal(b, apiErrors)
 		if err != nil {
-			return errors.New(fmt.Sprintf("got API error with bad JSON: %s: %s", resp.Status, b))
+			return fmt.Errorf("got API error with bad JSON: %s: %s", resp.Status, b)
 		}
 
 		resultErr := errors.New("API response: " + resp.Status)
