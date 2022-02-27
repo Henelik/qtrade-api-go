@@ -164,8 +164,7 @@ func checkForError(resp *http.Response) error {
 
 		resultErr := errors.New("API response: " + resp.Status)
 		for _, thisErr := range apiErrors.Errors {
-			resultErr = errors.Wrap(resultErr,
-				fmt.Sprintf("%s: %s", thisErr.Code, thisErr.Title))
+			resultErr = errors.Wrap(resultErr, thisErr.Error())
 		}
 
 		return resultErr
