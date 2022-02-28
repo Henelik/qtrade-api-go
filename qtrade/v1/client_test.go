@@ -93,7 +93,7 @@ func TestClient_checkForError(t *testing.T) {
 				Body:       io.NopCloser(strings.NewReader(`{"errors": [{"code": "invalid_auth","title": "Invalid HMAC signature"}]}`)),
 			},
 			wantErr: true,
-			errMsg:  "invalid_auth: Invalid HMAC signature: API response: 403 Forbidden",
+			errMsg:  "Invalid HMAC signature: API response: 403 Forbidden",
 		},
 		{
 			name: "non-error response",
